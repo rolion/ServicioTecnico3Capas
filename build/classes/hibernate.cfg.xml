@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/serviciotecnico?zeroDateTimeBehavior=convertToNull</property>
+    <property name="hibernate.connection.username">root</property>
+    <property name="hibernate.current_session_context_class">thread</property>
+    <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.transaction.auto_close_session">true</property>
+    <property name="hibernate.query.factory_class">org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory</property>
+    <property name="hibernate.connection.password">root</property>
+    <mapping resource="Datos/DetallePerito.hbm.xml"/>
+    <mapping resource="Datos/AgenteQuimico.hbm.xml"/>
+    <mapping resource="Datos/Extintor.hbm.xml"/>
+    <mapping resource="Datos/NotaPerito.hbm.xml"/>
+    <mapping resource="Datos/NotaEntrega.hbm.xml"/>
+    <mapping resource="Datos/Persona.hbm.xml"/>
+    <mapping resource="Datos/NotaServicio.hbm.xml"/>
+    <mapping resource="Datos/Servicio.hbm.xml"/>
+    <mapping resource="Datos/TipoPersona.hbm.xml"/>
+    <mapping resource="Datos/DetalleNota.hbm.xml"/>
+  </session-factory>
+</hibernate-configuration>

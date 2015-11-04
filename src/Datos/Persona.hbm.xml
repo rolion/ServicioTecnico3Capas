@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 4, 2015 11:14:55 AM by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Datos.Persona" table="persona" catalog="serviciotecnico" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="tipoPersona" class="Datos.TipoPersona" fetch="select">
+            <column name="id_tipo_persona" />
+        </many-to-one>
+        <property name="nombre" type="string">
+            <column name="nombre" length="65535" />
+        </property>
+        <property name="apellido" type="string">
+            <column name="apellido" length="65535" />
+        </property>
+        <property name="ci" type="java.lang.Integer">
+            <column name="ci" />
+        </property>
+        <property name="telefono" type="java.lang.Integer">
+            <column name="telefono" />
+        </property>
+        <property name="email" type="string">
+            <column name="email" length="65535" />
+        </property>
+        <property name="nombreEmpresa" type="string">
+            <column name="nombre_empresa" length="65535" />
+        </property>
+        <property name="eliminado" type="java.lang.Boolean">
+            <column name="eliminado" />
+        </property>
+        <set name="notaServicios" table="nota_servicio" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="id_cliente" />
+            </key>
+            <one-to-many class="Datos.NotaServicio" />
+        </set>
+        <set name="notaPeritos" table="nota_perito" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="id_perito" />
+            </key>
+            <one-to-many class="Datos.NotaPerito" />
+        </set>
+    </class>
+</hibernate-mapping>

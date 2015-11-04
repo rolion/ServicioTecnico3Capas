@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd">
+<hibernate-reverse-engineering>
+  <schema-selection match-catalog="serviciotecnico"/>
+  <table-filter match-name="nota_servicio"/>
+  <table-filter match-name="nota_perito"/>
+  <table-filter match-name="extintor"/>
+  <table-filter match-name="persona"/>
+  <table-filter match-name="detalle_perito"/>
+  <table-filter match-name="agente_quimico"/>
+  <table-filter match-name="detalle_nota"/>
+  <table-filter match-name="nota_entrega"/>
+  <table-filter match-name="tipo_persona"/>
+  <table-filter match-name="servicio"/>
+</hibernate-reverse-engineering>

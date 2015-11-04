@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 4, 2015 11:14:55 AM by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Datos.DetalleNota" table="detalle_nota" catalog="serviciotecnico" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="extintor" class="Datos.Extintor" fetch="select">
+            <column name="id_extintor" />
+        </many-to-one>
+        <many-to-one name="notaServicio" class="Datos.NotaServicio" fetch="select">
+            <column name="id_nota" />
+        </many-to-one>
+        <property name="cantidad" type="java.lang.Integer">
+            <column name="cantidad" />
+        </property>
+    </class>
+</hibernate-mapping>

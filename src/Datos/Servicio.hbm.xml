@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 4, 2015 11:14:55 AM by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="Datos.Servicio" table="servicio" catalog="serviciotecnico" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="descripcion" type="string">
+            <column name="descripcion" length="65535" />
+        </property>
+        <property name="precio" type="java.lang.Float">
+            <column name="precio"  precision="2" />
+        </property>
+        <property name="eliminado" type="java.lang.Boolean">
+            <column name="eliminado" />
+        </property>
+        <set name="detallePeritos" table="detalle_perito" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="id_servicio" />
+            </key>
+            <one-to-many class="Datos.DetallePerito" />
+        </set>
+    </class>
+</hibernate-mapping>
