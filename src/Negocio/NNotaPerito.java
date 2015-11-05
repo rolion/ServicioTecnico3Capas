@@ -10,7 +10,7 @@ import Datos.NotaPerito;
 import Datos.NotaServicio;
 import Datos.Persona;
 import Datos.Servicio;
-import interfaces.SpecificParticipant;
+import interfaces.THibernateHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ public class NNotaPerito {
      private boolean joinAll(List detalle, long id){
         boolean valid=true;
         for (Object detalle1 : detalle) {
-            valid=valid && ((SpecificParticipant)detalle1).join(id);
+            valid=valid && ((THibernateHelper)detalle1).join(id);
         }
         
         return valid;
@@ -43,7 +43,7 @@ public class NNotaPerito {
             ArrayList detallePerito=new ArrayList();
             try{
                 
-                List<SpecificParticipant> participantes=new ArrayList<>();
+                List<THibernateHelper> participantes=new ArrayList<>();
                 participantes.addAll(listServicio);
                 participantes.add(perito);
                 participantes.add(notaServicio);

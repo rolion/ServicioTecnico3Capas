@@ -86,6 +86,25 @@ public class ExtintorDAO {
         }
         return null;
     }
+    public ExtintorDTO getExtintorById(ExtintorDTO e) throws SQLException, ClassNotFoundException{
+        if(this.conn!=null){
+            String where=column_id+"="+e.getId();
+            ResultSet rslt= this.conn.query("*", tableName, where, "");
+            if(rslt.next()){
+                this.extintorDTO=new ExtintorDTO();
+                this.extintorDTO.setId(rslt.getInt(column_id));
+                AgenteQuimicoDTO a=new AgenteQuimicoDTO();
+                a.setId(rslt.getInt(column_id_agente_quimico));
+                a=getAgenteQuimico(a);
+                this.extintorDTO.setAgenteQuimico(a);
+                this.extintorDTO.setClasificacion(rslt.getString(column_clasificacion));
+                this.extintorDTO.setEliminado(rslt.getBoolean(column_eliminado));
+                this.extintorDTO.setPeso(rslt.getInt(column_peso));
+                return this.extintorDTO;
+            }
+        }
+        return null;
+    }
     private AgenteQuimicoDTO getAgenteQuimico(AgenteQuimicoDTO agenteQ) throws SQLException, ClassNotFoundException{
         this.agente=new AgenteQuimicoDAO();
         return this.agente.getAgenteById(agenteQ);

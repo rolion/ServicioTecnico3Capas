@@ -9,7 +9,7 @@ import Datos.DetalleNota;
 import Datos.Extintor;
 import Datos.NotaServicio;
 import Datos.Persona;
-import interfaces.SpecificParticipant;
+import interfaces.THibernateHelper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,9 +26,9 @@ public class NNotaServicio {
 
     public NNotaServicio() {
     }
-    private boolean joinAll(SpecificParticipant nota, List<SpecificParticipant> detalle, long id){
+    private boolean joinAll(THibernateHelper nota, List<THibernateHelper> detalle, long id){
         boolean valid=nota.join(id);
-        for (SpecificParticipant detalle1 : detalle) {
+        for (THibernateHelper detalle1 : detalle) {
             valid=valid && detalle1.join(id);
         }
         
