@@ -5,6 +5,12 @@
  */
 package serviciotecnico3capas;
 
+import DatosSql.AgenteQuimicoDAO;
+import DatosSql.PersonaDAO;
+import DatosSql.TipoPersonaDAO;
+import java.sql.SQLException;
+import java.util.List;
+
 /**
  *
  * @author oscar
@@ -14,8 +20,13 @@ public class ServicioTecnico3Capas {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+            PersonaDAO dao=new PersonaDAO();
+            List lista=dao.getAll();
+            for (Object lista1 : lista) {
+                System.out.println(lista1);
+            }
+            
     }
     
 }
