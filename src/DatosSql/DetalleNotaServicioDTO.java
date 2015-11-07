@@ -5,7 +5,6 @@
  */
 package DatosSql;
 
-import Datos.Extintor;
 import interfaces.ProtoType;
 
 

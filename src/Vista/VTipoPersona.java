@@ -5,9 +5,12 @@
  */
 package Vista;
 
-import Datos.TipoPersona;
+import DatosSql.TipoPersonaDTO;
 import Negocio.NGestionarTipoPersona;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
@@ -24,7 +27,7 @@ public class VTipoPersona extends javax.swing.JFrame {
      * Creates new form VTipoUsuario
      */
     private NGestionarTipoPersona ntp;
-    public VTipoPersona() {
+    public VTipoPersona() throws SQLException, ClassNotFoundException {
         initComponents();
         ntp=new NGestionarTipoPersona();
     }
@@ -84,7 +87,6 @@ public class VTipoPersona extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTable1);
 
-        jPanel1.setBorder(null);
         jPanel1.setLayout(new java.awt.GridLayout(4, 1));
 
         jBGuardar.setText("Nuevo");
@@ -99,6 +101,11 @@ public class VTipoPersona extends javax.swing.JFrame {
         jPanel1.add(jBGuardar);
 
         jBModificar.setText("Modificar");
+        jBModificar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBModificarActionPerformed(evt);
+            }
+        });
         jPanel1.add(jBModificar);
 
         jBBuscar.setText("Buscar");
@@ -123,7 +130,6 @@ public class VTipoPersona extends javax.swing.JFrame {
         });
         jPanel1.add(jBEliminar);
 
-        jPanel2.setBorder(null);
         jPanel2.setLayout(new java.awt.GridLayout(3, 2));
 
         jLabel1.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
@@ -179,7 +185,7 @@ public class VTipoPersona extends javax.swing.JFrame {
     private void jBGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBGuardarActionPerformed
         try {
             
-            TipoPersona tp =ntp.guardarTipoPersona(jTFNombre.getText(),jTFdescripcion.getText());
+            TipoPersonaDTO tp =ntp.guardarTipoPersona(jTFNombre.getText(),jTFdescripcion.getText());
             this.jTFId.setText(tp.getId().toString());
             ShowMessage("Dato guardado", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
@@ -189,14 +195,14 @@ public class VTipoPersona extends javax.swing.JFrame {
 
     private void jBBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBBuscarActionPerformed
         try {
-            List lista=ntp.buscarTipoPersona(this.jTFNombre.getText());
+            List lista=ntp.listarTodos();
             Object vector[]={"Id","Nombre","Descripcion"} ;
             Object matriz [][]=new Object[lista.size()][3];
             jTableModel model;
             if(lista!=null && !lista.isEmpty()){
                 for (Object o1 : lista) {
                     int i=lista.indexOf(o1);
-                    TipoPersona tp=(TipoPersona) o1;
+                    TipoPersonaDTO tp=(TipoPersonaDTO) o1;
                     matriz[i][0]=tp.getId();
                     matriz[i][1]=tp.getNombre();
                     matriz[i][2]=tp.getDescripcion();
@@ -218,6 +224,15 @@ public class VTipoPersona extends javax.swing.JFrame {
             ShowMessage("Error al eliminar", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jBEliminarActionPerformed
+
+    private void jBModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBModificarActionPerformed
+        try {
+            this.ntp.modificarTipoPersona(Integer.valueOf(jTFId.getText()),jTFNombre.getText(),jTFdescripcion.getText());
+            ShowMessage("Dato modificado", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            Logger.getLogger(VTipoPersona.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jBModificarActionPerformed
     private void settableListener(){
         
         this.jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -229,6 +244,7 @@ public class VTipoPersona extends javax.swing.JFrame {
                    // TipoPersona tp=new TipoPersona();
                     jTFId.setText( jTable1.getModel().getValueAt(selectedRowIndex, 0).toString());
                     jTFNombre.setText((String) jTable1.getModel().getValueAt(selectedRowIndex, 1));
+                    jTFdescripcion.setText((String) jTable1.getModel().getValueAt(selectedRowIndex, 2));
                 }
             }
         });
@@ -271,7 +287,13 @@ public class VTipoPersona extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new VTipoPersona().setVisible(true);
+                try {
+                    new VTipoPersona().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(VTipoPersona.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(VTipoPersona.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

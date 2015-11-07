@@ -11,6 +11,6 @@ package interfaces;
  */
 public interface TransactionParticipant {
     public boolean join(long transactionID);
-    public boolean commit(long transactionID) throws Exception;
-    public boolean cancel(long transactionID);
+    public void commit(long transactionID) throws Exception;
+    public void cancel(long transactionID);
 }

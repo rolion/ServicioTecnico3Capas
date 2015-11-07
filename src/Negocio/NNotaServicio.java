@@ -5,13 +5,19 @@
  */
 package Negocio;
 
-import Datos.DetalleNota;
-import Datos.Extintor;
-import Datos.NotaServicio;
-import Datos.Persona;
+import DatosSql.DetalleNotaServicioDAO;
+import DatosSql.DetalleNotaServicioDTO;
+import DatosSql.NotaServicioDAO;
+import DatosSql.NotaServicioDTO;
+import DatosSql.PersonaDTO;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
+import interfaces.SpecificParticipant;
 import interfaces.THibernateHelper;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,104 +28,91 @@ import org.hibernate.HibernateException;
  * @author oscar
  */
 public class NNotaServicio {
-    private NotaServicio notaServicio;
+    private NotaServicioDTO notaServicioDTO;
+    private NotaServicioDAO notaServicioDAO;
+    private List<SpecificParticipant> listaParticipantes;
 
-    public NNotaServicio() {
+    public NNotaServicio() throws SQLException, ClassNotFoundException {
+        this.listaParticipantes=new ArrayList<>();
+        this.notaServicioDAO=new NotaServicioDAO();
+        this.listaParticipantes.add(this.notaServicioDAO);
     }
-    private boolean joinAll(THibernateHelper nota, List<THibernateHelper> detalle, long id){
-        boolean valid=nota.join(id);
-        for (THibernateHelper detalle1 : detalle) {
-            valid=valid && detalle1.join(id);
+
+    public boolean joinAll(long transactionID){
+        boolean valid=true;
+        for(SpecificParticipant participant: this.listaParticipantes){
+            valid=valid && participant.join(transactionID);
         }
-        
         return valid;
+        //return this.notaServicioDAO.join(transactionID) &&this.detalleServicioDAO.join(transactionID);
     }
-    public NotaServicio nuevaNota(Persona cliente, Date fecha, String descripcion,
+    public void commitAll(long transactionID) throws Exception{
+         for(SpecificParticipant participant: this.listaParticipantes){
+            participant.commit(transactionID);
+        }
+    }
+    public void cancelAll(long transactionID) throws Exception{
+     for(SpecificParticipant participant: this.listaParticipantes){
+        participant.cancel(transactionID);
+    }
+}
+    public NotaServicioDTO nuevaNota(PersonaDTO cliente, Date fecha, String descripcion,
             List detalle) throws Exception{
         
-        if(cliente!=null && fecha!=null && detalle!=null && !detalle.isEmpty()){
-            notaServicio=new NotaServicio();
-            List listaDetalle=new ArrayList();
-            long idTransaction=new Date().getTime();
-            try{
-                
-                boolean valid=this.joinAll(notaServicio, detalle, idTransaction);
-                if(valid){
-                    notaServicio.setEliminado(Boolean.FALSE);
-                    notaServicio.setPersona(cliente);
-                    notaServicio.setFecha(fecha);
-                    notaServicio.setDescripcionCliente(descripcion);
-                    notaServicio.commit(idTransaction);
-                    for (Object d : detalle) {
-                        ((DetalleNota)d).setNotaServicio(notaServicio);
-                        ((DetalleNota)d).setCantidad(1);
-                        ((DetalleNota)d).commit(idTransaction);
-                    }
-                }else{
-                    throw new Exception("No ");
-                }
-            }catch(Exception e){
-                if(notaServicio!=null){
-                    notaServicio.cancel(idTransaction);
-                    for (Object lista : listaDetalle) {
-                        DetalleNota d=(DetalleNota) lista;
-                        d.cancel(idTransaction);
-                    }
-                }
-                throw new Exception("Error al guardar la nota");
+            long idTransaction=new java.util.Date().getTime();
+            notaServicioDTO=new NotaServicioDTO();
+            notaServicioDTO.setEliminado(Boolean.FALSE);
+            notaServicioDTO.setPersona(cliente);
+            notaServicioDTO.setFecha(fecha);
+            notaServicioDTO.setDescripcionCliente(descripcion);
+            for (Object d : detalle) {
+                SpecificParticipant participante=new DetalleNotaServicioDAO();
+                this.listaParticipantes.add(participante);
             }
-
-            return notaServicio;
-        }else{
-            throw new Exception("Error, no se puede guardar valores nulos");
-        }
-        
+            if(this.joinAll(idTransaction)){
+                if(this.listaParticipantes.get(0).validar(idTransaction,notaServicioDTO)){
+                    boolean valid=true;
+                    for(int i=0;i<detalle.size();i++){
+                        DetalleNotaServicioDTO d=(DetalleNotaServicioDTO) detalle.get(i);
+                        d.setNotaServicio(notaServicioDTO);
+                        valid=valid && this.listaParticipantes.get(i+1).validar(idTransaction, d);
+                    }
+                    if(valid){
+                        this.commitAll(idTransaction);
+                        return notaServicioDTO;
+                    }else
+                        this.cancelAll(idTransaction);
+                }else
+                    this.listaParticipantes.get(0).cancel(idTransaction);
+            }
+            return null;
     }
-    public boolean anularNota(int id, Persona cliente, Date fecha, String descripcion) throws Exception{
+    public boolean anularNota(int id, PersonaDTO cliente, Date fecha, String descripcion) throws Exception{
         if(id>0 && cliente!=null && fecha!=null && !descripcion.trim().isEmpty()){
-                notaServicio=new NotaServicio();
-                notaServicio.setId(id);
-                notaServicio.setPersona(cliente);
-                notaServicio.setFecha(fecha);
-                notaServicio.setDescripcionCliente(descripcion);
-                notaServicio.setEliminado(Boolean.TRUE);
-                notaServicio.modificar();
+                notaServicioDTO=new NotaServicioDTO();
+                notaServicioDTO.setId(id);
+                notaServicioDTO.setPersona(cliente);
+                notaServicioDTO.setFecha(fecha);
+                notaServicioDTO.setDescripcionCliente(descripcion);
+                notaServicioDTO.setEliminado(Boolean.TRUE);
+                notaServicioDAO.actualizar(notaServicioDTO);
         }else
             throw new Exception("Debe introducir datos");
         return true;
     }
-    public NotaServicio buscarNotaPorId(int id) throws Exception{
-        notaServicio=new NotaServicio();
-        notaServicio.setId(id);
-        List result=notaServicio.buscar();
-        if(result!=null && !result.isEmpty()){
-            return (NotaServicio) notaServicio.buscar().get(0);
+    public NotaServicioDTO buscarNotaPorId(int id) throws Exception{
+        notaServicioDTO=new NotaServicioDTO();
+        notaServicioDTO.setId(id);
+        notaServicioDTO=notaServicioDAO.getNotaById(notaServicioDTO);
+        if(notaServicioDTO!=null){
+            return  notaServicioDTO;
         }else
             throw new Exception("No se encontraron resultados");
         
     }
-
-    public boolean eliminarNota(int id){
-        notaServicio=new NotaServicio();
-        try {
-            notaServicio.setId(id);
-            notaServicio.eliminar();
-        } catch (Exception ex) {
-            Logger.getLogger(NNotaServicio.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return false;
-    }
-    public List buscarDetalle(int id) throws Exception{
-        DetalleNota dn=new DetalleNota();
-        this.notaServicio=new NotaServicio();
-        this.notaServicio.setId(id);
-        dn.setNotaServicio(notaServicio);
-        return dn.buscar();
-    }
     public List listarTodos() throws Exception{
-        this.notaServicio=new NotaServicio();
-        return this.notaServicio.listarTodos();
+        
+        return this.notaServicioDAO.getAll();
         
     }
 }

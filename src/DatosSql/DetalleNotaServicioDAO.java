@@ -17,11 +17,11 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class DetalleNotaServicioDAO implements SpecificParticipant {
+public class DetalleNotaServicioDAO implements SpecificParticipant{
 
     private long currentTransaction;
     private MySqlConector conn;
-    private DetalleNotaServicioDTO detalle;
+    private DetalleNotaServicioDTO currentDetalle;
     private final String tableName = "detalle_nota";
     private final String column_id = "id";
     private final String colum_id_extintor = "id_extintor";
@@ -36,22 +36,6 @@ public class DetalleNotaServicioDAO implements SpecificParticipant {
         this.currentTransaction = 0;
         this.conn = MySqlConector.getInstance();
         this.extintorDAO=new ExtintorDAO();
-    }
-
-    public long getCurrentTransaction() {
-        return currentTransaction;
-    }
-
-    public void setCurrentTransaction(long currentTransaction) {
-        this.currentTransaction = currentTransaction;
-    }
-    
-    public DetalleNotaServicioDTO getDetalle() {
-        return detalle;
-    }
-
-    public void setDetalle(DetalleNotaServicioDTO detalle) {
-        this.detalle = detalle;
     }
     
     public List getDetalleByIdNota(NotaServicioDTO nota) throws SQLException, ClassNotFoundException{
@@ -75,79 +59,58 @@ public class DetalleNotaServicioDAO implements SpecificParticipant {
         return null;
     }
 
-    @Override
-    public boolean insertar(long transactionID) {
-        if (this.conn != null && this.detalle != null) {
-            String values = colum_id_extintor + "=" + this.detalle.getExtintor().getId()
-                    + "," + colum_id_nota + "=" + this.detalle.getNotaServicio().getId()
-                    + "," + colum_cantidad + "=" + this.detalle.getCantidad();
-            try {
+    private boolean insertar() throws SQLException{
+        if (this.conn != null) {
+            String values =  + this.currentDetalle.getExtintor().getId()
+                    + "," +  this.currentDetalle.getNotaServicio().getId()
+                    + ","  + this.currentDetalle.getCantidad();
+
                 int id=this.conn.insert(tableName, all_column, values);
-                this.detalle.setId(id);
+                this.currentDetalle.setId(id);
                 return true;
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-                Logger.getLogger(DetalleNotaServicioDAO.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-                
-            }
+            
         }
         return false;
     }
 
     @Override
-    public boolean buscar(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean anular(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean actializar(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean validar(long transactionID, Object object) {
+        
+        if(this.currentTransaction==transactionID && object instanceof DetalleNotaServicioDTO){
+            DetalleNotaServicioDTO detalle=(DetalleNotaServicioDTO) object;
+            //validamos que la nota exista
+            if(detalle.getExtintor()!=null){
+                this.currentDetalle=detalle;
+                return true;
+            }else
+                return false;
+        }
+        return false;
     }
 
     @Override
     public boolean join(long transactionID) {
-        if (this.currentTransaction != 0) {
+        if(this.currentTransaction!=0){
             return false;
         }
-        this.currentTransaction = transactionID;
+        this.currentTransaction=transactionID;
         return true;
-
     }
 
     @Override
-    public boolean commit(long transactionID) throws Exception {
+    public void commit(long transactionID) throws Exception {
         if(this.currentTransaction==transactionID){
-            return this.insertar(transactionID);
+            this.currentTransaction=0;
+            this.insertar();
         }
-        return false;
     }
 
     @Override
-    public boolean cancel(long transactionID) {
-        if(this.currentTransaction==transactionID){
-            try {
-                return this.eliminarDetalle();
-            } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
-                Logger.getLogger(DetalleNotaServicioDAO.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
+    public void cancel(long transactionID) {
+        if(this.currentTransaction==transactionID && this.currentDetalle!=null){
+            this.currentDetalle=null;
+            this.currentTransaction=0;
         }
-        return false;
-    }
-    
-    private boolean eliminarDetalle() throws SQLException{
-        if(this.conn!=null && detalle!=null && detalle.getId()!=null){
-            String where=column_id+"="+this.detalle.getId();
-            this.conn.delete(tableName, where, "");
-        }
-        return false;
     }
 
 }

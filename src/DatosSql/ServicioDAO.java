@@ -31,9 +31,9 @@ public class ServicioDAO {
     }
     public ServicioDTO insertarServicio(ServicioDTO servicio) throws SQLException{
         if(this.conn!=null){
-            String values=column_precio+"="+servicio.getPrecio()+","+
-                    column_descripcion+"="+servicio.getDescripcion()+","
-                    +column_eliminado+"="+servicio.getEliminado();
+            String values=servicio.getPrecio()+",'"+
+                    servicio.getDescripcion()+"',"+
+                    servicio.getEliminado();
             int id=this.conn.insert(tableName, all_colum, values);
             servicio.setId(id);
             return servicio;
@@ -43,7 +43,7 @@ public class ServicioDAO {
     public boolean actualizarServicio(ServicioDTO servicio) throws SQLException{
         if(this.conn!=null){
             String set=column_precio+"="+servicio.getPrecio()+","+
-                    column_descripcion+"="+servicio.getDescripcion()+","
+                    column_descripcion+"='"+servicio.getDescripcion()+"',"
                     +column_eliminado+"="+servicio.getEliminado();
             String Where=column_id+"="+servicio.getId();
             this.conn.update(tableName, set, Where, "");

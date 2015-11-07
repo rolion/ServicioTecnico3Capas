@@ -11,8 +11,6 @@ package interfaces;
  */
 public interface SpecificParticipant extends TransactionParticipant{
     
-    public boolean insertar(long transactionID);
-    public boolean buscar(long transactionID);
-    public boolean anular(long transactionID);
-    public boolean actializar(long transactionID);
+    public boolean validar(long transactionID, Object data);
+   
 }

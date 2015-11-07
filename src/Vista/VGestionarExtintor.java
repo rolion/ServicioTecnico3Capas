@@ -5,10 +5,11 @@
  */
 package Vista;
 
-import Datos.AgenteQuimico;
-import Datos.Extintor;
+import DatosSql.AgenteQuimicoDTO;
+import DatosSql.ExtintorDTO;
 import Negocio.NGestionarAgenteQuimico;
 import Negocio.NGestionarExtintor;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +36,13 @@ public class VGestionarExtintor extends javax.swing.JFrame {
     public VGestionarExtintor() {
         initComponents();
         this.ngaq=new NGestionarAgenteQuimico();
-        this.nge=new NGestionarExtintor();
+        try {
+            this.nge=new NGestionarExtintor();
+        } catch (SQLException ex) {
+            Logger.getLogger(VGestionarExtintor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(VGestionarExtintor.class.getName()).log(Level.SEVERE, null, ex);
+        }
         initComboBox();
     }
     private void initComboBox(){
@@ -71,14 +78,13 @@ public class VGestionarExtintor extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        jBListar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Gestionar Extintor");
 
-        jPanel1.setBorder(null);
         jPanel1.setLayout(new java.awt.GridLayout(4, 2));
 
         jLabel1.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
@@ -107,7 +113,6 @@ public class VGestionarExtintor extends javax.swing.JFrame {
         jPanel1.add(jLabel4);
         jPanel1.add(jTFclasificacion);
 
-        jPanel2.setBorder(null);
         jPanel2.setLayout(new java.awt.GridLayout(4, 1));
 
         jButton1.setText("Nuevo");
@@ -136,13 +141,13 @@ public class VGestionarExtintor extends javax.swing.JFrame {
         });
         jPanel2.add(jButton3);
 
-        jButton4.setText("Buscar");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        jBListar.setText("Listar");
+        jBListar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                jBListarActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton4);
+        jPanel2.add(jBListar);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -197,7 +202,7 @@ public class VGestionarExtintor extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             this.jTFid.setText(this.nge.nuevoExtintor(
-                    (AgenteQuimico)this.jCBagentequimico.getSelectedItem(),
+                        (AgenteQuimicoDTO)this.jCBagentequimico.getSelectedItem(),
                     this.jTFclasificacion.getText(),
                     Integer.valueOf(this.jTFpeso.getText())).getId().toString());
             showMessage("Datos Guardados", JOptionPane.INFORMATION_MESSAGE);
@@ -211,7 +216,7 @@ public class VGestionarExtintor extends javax.swing.JFrame {
         try {
             this.nge.modificarExtintor(
                     Integer.valueOf(this.jTFid.getText()),
-                    (AgenteQuimico)this.jCBagentequimico.getSelectedItem(),
+                    (AgenteQuimicoDTO)this.jCBagentequimico.getSelectedItem(),
                     this.jTFclasificacion.getText(),
                     Integer.valueOf(this.jTFpeso.getText()));
             showMessage("Datos modificados", JOptionPane.INFORMATION_MESSAGE);
@@ -224,7 +229,7 @@ public class VGestionarExtintor extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
             this.nge.darDeBajaExtintor(Integer.valueOf(this.jTFid.getText()),
-                    (AgenteQuimico)this.jCBagentequimico.getSelectedItem(),
+                    (AgenteQuimicoDTO)this.jCBagentequimico.getSelectedItem(),
                     this.jTFclasificacion.getText(),
                     Integer.valueOf(this.jTFpeso.getText()));
             showMessage("Datos eliminados", JOptionPane.INFORMATION_MESSAGE);
@@ -234,15 +239,15 @@ public class VGestionarExtintor extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void jBListarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBListarActionPerformed
         
         try {
-            List listaExtintor=this.nge.buscar((AgenteQuimico)this.jCBagentequimico.getSelectedItem());
+            List listaExtintor=this.nge.listar();
             Object matriz [][]=new Object[listaExtintor.size()][4];
             int i=0;
             for (Object aq : listaExtintor) {
                i=listaExtintor.indexOf(aq);
-                Extintor a=(Extintor) aq;
+                ExtintorDTO a=(ExtintorDTO) aq;
                 matriz[i][0]=a.getId();
                 matriz[i][1]=a.getAgenteQuimico();
                 matriz[i][2]=a.getPeso();
@@ -253,7 +258,7 @@ public class VGestionarExtintor extends javax.swing.JFrame {
         } catch (Exception ex) {
             Logger.getLogger(VGestionarAgenteQuimico.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_jBListarActionPerformed
     private void settableListener(){
         
         this.jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -313,10 +318,10 @@ public class VGestionarExtintor extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jBListar;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JComboBox jCBagentequimico;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

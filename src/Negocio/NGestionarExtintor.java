@@ -5,8 +5,10 @@
  */
 package Negocio;
 
-import Datos.AgenteQuimico;
-import Datos.Extintor;
+import DatosSql.AgenteQuimicoDTO;
+import DatosSql.ExtintorDAO;
+import DatosSql.ExtintorDTO;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -14,60 +16,56 @@ import java.util.List;
  * @author oscar
  */
 public class NGestionarExtintor {
-    private Extintor extintor;
-
-    public NGestionarExtintor() {
+    private ExtintorDTO extintorDTO;
+    private ExtintorDAO extintorDAO;
+    public NGestionarExtintor() throws SQLException, ClassNotFoundException {
+        this.extintorDAO=new ExtintorDAO();
     }
-    public Extintor nuevoExtintor(AgenteQuimico aq, String clasificacion, int peso) throws Exception{
+    public ExtintorDTO nuevoExtintor(AgenteQuimicoDTO aq, String clasificacion, int peso) throws Exception{
         if(aq!=null && !clasificacion.trim().isEmpty() && peso>0){
-            extintor=new Extintor();
-            extintor.setAgenteQuimico(aq);
-            extintor.setClasificacion(clasificacion);
-            extintor.setPeso(peso);
-            extintor.setEliminado(Boolean.FALSE);
-            return (Extintor) extintor.guardar();
+            extintorDTO=new ExtintorDTO();
+            extintorDTO.setAgenteQuimico(aq);
+            extintorDTO.setClasificacion(clasificacion);
+            extintorDTO.setPeso(peso);
+            extintorDTO.setEliminado(Boolean.FALSE);
+            return  extintorDAO.insertarExtintor(extintorDTO);
         }else
             throw new Exception("no se puede guardar datos nulos");
         
     }
-    public Extintor modificarExtintor(int id,AgenteQuimico aq, 
+    public ExtintorDTO modificarExtintor(int id,AgenteQuimicoDTO aq, 
             String clasificacion, int peso) throws Exception{
         if(aq!=null && !clasificacion.trim().isEmpty() && peso>0){
-            extintor=new Extintor();
-            extintor.setId(id);
-            extintor.setAgenteQuimico(aq);
-            extintor.setClasificacion(clasificacion);
-            extintor.setPeso(peso);
-            extintor.setEliminado(Boolean.FALSE);
-            return (Extintor) extintor.modificar();
+            extintorDTO=new ExtintorDTO();
+            extintorDTO.setId(id);
+            extintorDTO.setAgenteQuimico(aq);
+            extintorDTO.setClasificacion(clasificacion);
+            extintorDTO.setPeso(peso);
+            extintorDTO.setEliminado(Boolean.FALSE);
+            extintorDAO.actualizarExtintor(extintorDTO);
+            return  extintorDTO;
         }else
             throw new Exception("no se puede actualizar datos nulos");
     }
-    public boolean darDeBajaExtintor(int id,AgenteQuimico aq, String clasificacion, int peso) throws Exception{
+    public boolean darDeBajaExtintor(int id,AgenteQuimicoDTO aq, String clasificacion, int peso) throws Exception{
         if(aq!=null && !clasificacion.trim().isEmpty() && peso>0){
-            extintor=new Extintor();
-            extintor.setId(id);
-            extintor.setAgenteQuimico(aq);
-            extintor.setClasificacion(clasificacion);
-            extintor.setPeso(peso);
-            extintor.setEliminado(Boolean.TRUE);
-            extintor.modificar();
+            extintorDTO=new ExtintorDTO();
+            extintorDTO.setId(id);
+            extintorDTO.setAgenteQuimico(aq);
+            extintorDTO.setClasificacion(clasificacion);
+            extintorDTO.setPeso(peso);
+            extintorDTO.setEliminado(Boolean.TRUE);
+            extintorDAO.actualizarExtintor(extintorDTO);
             return true;
         }else
             throw new Exception("insertar datos del extintor a eliminar");
     
     }
-    public List buscar(AgenteQuimico aq) throws Exception{
-        if(aq!=null){
-            extintor=new Extintor();
-            extintor.setAgenteQuimico(aq);
-            return extintor.buscar();
-        }else
-            throw new Exception("seleccione un agente quimico");
+    public List listar() throws Exception{
+            return this.extintorDAO.getAll();
     }
     public List listarTodos() throws Exception{
-        extintor=new Extintor();
-        return extintor.listarTodos();
+        return extintorDAO.getAll();
         
     }
 }

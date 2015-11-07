@@ -5,7 +5,9 @@
  */
 package util;
 
-import Datos.NotaServicio;
+import DatosSql.NotaServicioDTO;
+
+
 
 /**
  *
@@ -13,6 +15,6 @@ import Datos.NotaServicio;
  */
 public interface InterfaceBusqueda {
     
-    public void getSeleccion(NotaServicio ns);
+    public void getSeleccion(NotaServicioDTO ns);
     
 }

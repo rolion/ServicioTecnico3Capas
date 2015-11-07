@@ -5,7 +5,6 @@
  */
 package DatosSql;
 
-import Datos.TipoPersona;
 import interfaces.ProtoType;
 import java.util.HashSet;
 import java.util.Set;
@@ -129,7 +128,7 @@ public class PersonaDTO implements ProtoType{
 
     @Override
     public String toString() {
-        return "PersonaDTO{" + "id=" + id + ", tipoPersona=" + tipoPersona + ", nombre=" + nombre + ", apellido=" + apellido + ", ci=" + ci + ", telefono=" + telefono + ", email=" + email + ", nombreEmpresa=" + nombreEmpresa + ", eliminado=" + eliminado + ", currentTransaction=" + currentTransaction + '}';
+        return  nombre ;
     }
     
     

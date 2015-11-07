@@ -6,6 +6,7 @@
 package DatosSql;
 
 import interfaces.SpecificParticipant;
+import interfaces.TransactionParticipant;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,76 +20,32 @@ import java.util.logging.Logger;
  */
 public class NotaServicioDAO implements SpecificParticipant{
     
-    private NotaServicioDTO nota;
-    private PersonaDAO personaDAO;
-    private DetalleNotaServicioDAO detalleDAO;
+    private NotaServicioDTO currentNota;
     private long currentTransaction;
     private MySqlConector conn;
     private final String tableName="nota_servicio";
     private final String column_id="id";
     private final String column_id_cliente="id_cliente";
     private final String column_fecha="fecha";
-    private final String column_descripcion="descripcion";
+    private final String column_descripcion="descripcion_cliente";
     private final String column_eliminado="eliminado";
     private final String all_columns=column_id_cliente+","+
                             column_fecha+","+column_descripcion+","
                             +column_eliminado;
 
     public NotaServicioDAO() throws SQLException, ClassNotFoundException {
-        this.personaDAO=new PersonaDAO();
-        this.detalleDAO=new DetalleNotaServicioDAO();
+  
+
         this.conn=MySqlConector.getInstance();
     }
-    
 
-    @Override
-    public boolean insertar(long transactionID) {
-        if(this.conn!=null && nota!=null){
-            String values=nota.getPersona().getId()+","+
-                    "'"+nota.getFecha().toString()+"',"+
-                    nota.getDescripcionCliente()+","+
-                    nota.getEliminado();
-            try {
-                int id=this.conn.insert(tableName, all_columns, values);
-                this.nota.setId(id);
-                boolean valid=true;
-                for(Object de:nota.getDetalle()){
-                    DetalleNotaServicioDTO d=(DetalleNotaServicioDTO) de;
-                    d.setNotaServicio(nota);
-                    this.detalleDAO.setDetalle(d);
-                    valid=valid && this.detalleDAO.commit(transactionID);
-                }
-                return valid;
-            } catch (SQLException ex) {
-                Logger.getLogger(NotaServicioDAO.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception ex) {
-                Logger.getLogger(NotaServicioDAO.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean buscar(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean anular(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean actializar(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     private PersonaDTO getPersonaById(PersonaDTO p) throws SQLException, ClassNotFoundException{
-        return this.personaDAO.getById(p);
+        return new PersonaDAO().getById(p);
     }
     public List getAll() throws SQLException, ClassNotFoundException{
         if(this.conn!=null){
             List lista =new ArrayList();
-            ResultSet rslt=this.conn.query("*", tableName, "'", "");
+            ResultSet rslt=this.conn.query("*", tableName, "", "");
             while(rslt.next()){
                 NotaServicioDTO nServicio=new NotaServicioDTO();
                 nServicio.setId(rslt.getInt(column_id));
@@ -99,7 +56,7 @@ public class NotaServicioDAO implements SpecificParticipant{
                 p.setId(rslt.getInt(column_id_cliente));
                 p=getPersonaById(p);
                 nServicio.setPersona(p);
-                nServicio.setDetalle(this.detalleDAO.getDetalleByIdNota(nServicio));
+                nServicio.setDetalle(new DetalleNotaServicioDAO().getDetalleByIdNota(nServicio));
                 lista.add(nServicio);
             }
             return lista;
@@ -121,65 +78,99 @@ public class NotaServicioDAO implements SpecificParticipant{
                 p.setId(rslt.getInt(column_id_cliente));
                 p=getPersonaById(p);
                 n.setPersona(p);
-                n.setDetalle(this.detalleDAO.getDetalleByIdNota(n));
+                n.setDetalle(new DetalleNotaServicioDAO().getDetalleByIdNota(n));
                 return n;
             }
         }
         return null;
     }
     
-    private boolean delete(NotaServicioDTO nota) throws SQLException{
+    private boolean eliminar(NotaServicioDTO nota) throws SQLException{
         if(nota!=null && nota.getDetalle()!=null && this.conn!=null){
             List ldetalle=nota.getDetalle();
-            for (Object ldetalle1 : ldetalle) {
-                this.detalleDAO.setDetalle((DetalleNotaServicioDTO) ldetalle);
-                this.detalleDAO.cancel(currentTransaction);
-            }
             String where=column_id+"="+nota.getId();
             this.conn.delete(tableName, where, "");
             return true;
         }
         return false;
     }
-
+    private void delete() throws SQLException{
+        if(this.conn!=null){
+            String where=column_id+"="+this.currentNota.getId();
+            this.conn.delete(tableName, tableName, tableName);
+        }
+    }
+    private void insertar() {
+        if(this.conn!=null){
+            try {
+                String values=this.currentNota.getPersona().getId()+",'"+
+                            this.currentNota.getFecha()+"','"+
+                            this.currentNota.getDescripcionCliente()+"',"+
+                            this.currentNota.getEliminado();
+                int id=this.conn.insert(tableName, all_columns, values);
+                this.currentNota.setId(id);
+            } catch (SQLException ex) {
+                Logger.getLogger(NotaServicioDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    public void actualizar(NotaServicioDTO nota){
+        if(this.conn!=null){
+            try {
+                String values=nota.getPersona().getId()+",'"+
+                            nota.getFecha()+"','"+
+                            nota.getDescripcionCliente()+"',"+
+                            nota.getEliminado();
+                int id=this.conn.insert(tableName, all_columns, values);
+                this.currentNota.setId(id);
+            } catch (SQLException ex) {
+                Logger.getLogger(NotaServicioDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
     @Override
     public boolean join(long transactionID) {
         if(this.currentTransaction!=0){
             return false;
         }
-        else{
-            boolean valid=true && this.personaDAO.join(transactionID) && this.detalleDAO.join(transactionID);
-            if(!valid){
-                this.currentTransaction=0;
-                this.personaDAO.setCurrentTransction(0);
-                this.detalleDAO.setCurrentTransaction(0);
-            }
-            this.currentTransaction=transactionID;
-            return valid;
+        this.currentTransaction=transactionID;
+        return true;
+    }
+
+    @Override
+    public void commit(long transactionID) throws Exception {
+        if(this.currentTransaction==transactionID && this.currentNota!=null){
+            
+            this.currentTransaction=0;
         }
     }
 
     @Override
-    public boolean commit(long transactionID) throws Exception {
-        if(this.currentTransaction==transactionID){
-            return this.insertar(transactionID);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean cancel(long transactionID) {
+    public void cancel(long transactionID) {
         if(this.currentTransaction==transactionID){
             try {
-                this.delete(this.nota);
-                return true;
+                this.delete();
+                this.currentNota=null;
+                this.currentTransaction=0;
             } catch (SQLException ex) {
-                System.err.println(ex.getMessage());
                 Logger.getLogger(NotaServicioDAO.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
             }
+            
+        }
+    }
+
+    @Override
+    public boolean validar(long transactionID, Object data) {
+        if(this.currentTransaction==transactionID && data instanceof NotaServicioDTO){
+            NotaServicioDTO nota=(NotaServicioDTO) data;
+            if(nota.getFecha()!=null && nota.getPersona()!=null && 
+                    !nota.getDescripcionCliente().trim().isEmpty()){
+                this.currentNota=nota;
+                this.insertar();
+                return true;
+            }
+            return false;
         }
         return false;
     }
-    
 }

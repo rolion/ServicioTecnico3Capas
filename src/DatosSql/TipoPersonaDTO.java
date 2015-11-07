@@ -74,7 +74,7 @@ public class TipoPersonaDTO implements ProtoType{
 
     @Override
     public String toString() {
-        return "TipoPersonaDTO{" + "id=" + id + ", nombre=" + nombre + ", eliminado=" + eliminado + ", descripcion=" + descripcion + ", currentTransaction=" + currentTransaction + '}';
+        return  nombre ;
     }
     
      

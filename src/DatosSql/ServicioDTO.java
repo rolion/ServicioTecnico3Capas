@@ -73,5 +73,11 @@ public class ServicioDTO implements ProtoType{
         clone.setCurrentTransaction(currentTransaction);
         return clone;
     }
+
+    @Override
+    public String toString() {
+        return  descripcion;
+    }
+    
      
 }

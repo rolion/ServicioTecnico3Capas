@@ -5,7 +5,6 @@
  */
 package DatosSql;
 
-import Datos.AgenteQuimico;
 import interfaces.ProtoType;
 
 /**
@@ -84,4 +83,10 @@ public class ExtintorDTO implements ProtoType {
         clone.setPeso(peso);
         return clone;
     }
+
+    @Override
+    public String toString() {
+        return agenteQuimico.getNombre()+" "+this.getPeso()+"kg";
+    }
+    
 }

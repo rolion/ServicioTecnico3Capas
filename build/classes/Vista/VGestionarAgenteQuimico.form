@@ -148,12 +148,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jBbajaActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="jBbuscar">
+        <Component class="javax.swing.JButton" name="jBlistar">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Buscar"/>
+            <Property name="text" type="java.lang.String" value="Listar"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jBbuscarActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jBlistarActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

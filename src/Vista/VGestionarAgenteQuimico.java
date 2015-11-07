@@ -5,7 +5,7 @@
  */
 package Vista;
 
-import Datos.AgenteQuimico;
+import DatosSql.AgenteQuimicoDTO;
 import Negocio.NGestionarAgenteQuimico;
 import java.util.List;
 import java.util.logging.Level;
@@ -54,7 +54,7 @@ public class VGestionarAgenteQuimico extends javax.swing.JFrame {
         jBnuevo = new javax.swing.JButton();
         jBmodificar = new javax.swing.JButton();
         jBbaja = new javax.swing.JButton();
-        jBbuscar = new javax.swing.JButton();
+        jBlistar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Gestionar Agente Quimico");
@@ -117,13 +117,13 @@ public class VGestionarAgenteQuimico extends javax.swing.JFrame {
         });
         jPanel2.add(jBbaja);
 
-        jBbuscar.setText("Buscar");
-        jBbuscar.addActionListener(new java.awt.event.ActionListener() {
+        jBlistar.setText("Listar");
+        jBlistar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jBbuscarActionPerformed(evt);
+                jBlistarActionPerformed(evt);
             }
         });
-        jPanel2.add(jBbuscar);
+        jPanel2.add(jBlistar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -189,14 +189,15 @@ public class VGestionarAgenteQuimico extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jBbajaActionPerformed
 
-    private void jBbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBbuscarActionPerformed
+    private void jBlistarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBlistarActionPerformed
+        
         try {
-            List listaAgenteQuimico=this.ngaq.buscar(this.jTFnombre.getText());
+            List listaAgenteQuimico=this.ngaq.listarTodos(/*this.jTFnombre.getText()*/);
             Object matriz [][]=new Object[listaAgenteQuimico.size()][3];
             int i=0;
             for (Object aq : listaAgenteQuimico) {
                i=listaAgenteQuimico.indexOf(aq);
-                AgenteQuimico a=(AgenteQuimico) aq;
+                AgenteQuimicoDTO a=(AgenteQuimicoDTO) aq;
                 matriz[i][0]=a.getId();
                 matriz[i][1]=a.getNombre();
                 matriz[i][2]=a.getClasificacion();
@@ -206,7 +207,7 @@ public class VGestionarAgenteQuimico extends javax.swing.JFrame {
         } catch (Exception ex) {
             Logger.getLogger(VGestionarAgenteQuimico.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jBbuscarActionPerformed
+    }//GEN-LAST:event_jBlistarActionPerformed
      private void settableListener(){
         
         this.jTableagentequimico.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -267,7 +268,7 @@ public class VGestionarAgenteQuimico extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Id;
     private javax.swing.JButton jBbaja;
-    private javax.swing.JButton jBbuscar;
+    private javax.swing.JButton jBlistar;
     private javax.swing.JButton jBmodificar;
     private javax.swing.JButton jBnuevo;
     private javax.swing.JLabel jLabel2;

@@ -5,7 +5,7 @@
  */
 package Vista;
 
-import Datos.NotaServicio;
+import DatosSql.NotaServicioDTO;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.event.ListSelectionEvent;
@@ -40,7 +40,7 @@ public class VBusquedaNota extends javax.swing.JFrame {
         this.notas=notas;
         Object data[][]=new Object[notas.size()][4];
         for (int i=0;i<notas.size();i++) {
-            NotaServicio ns=(NotaServicio) notas.get(i);
+            NotaServicioDTO ns=(NotaServicioDTO) notas.get(i);
             data[i][0]=ns.getId();
             data[i][1]=ns.getPersona().getNombre();
             data[i][2]=ns.getFecha().toString();
@@ -155,7 +155,7 @@ public class VBusquedaNota extends javax.swing.JFrame {
                 int selectedRowIndex=jTable1.getSelectedRow();
                 if(selectedRowIndex>-1 && selectedRowIndex<jTable1.getModel().getRowCount()){
                     TableModel model= jTable1.getModel();
-                    mInterface.getSeleccion((NotaServicio) notas.get(selectedRowIndex));
+                    mInterface.getSeleccion((NotaServicioDTO) notas.get(selectedRowIndex));
                 }
             }
         });

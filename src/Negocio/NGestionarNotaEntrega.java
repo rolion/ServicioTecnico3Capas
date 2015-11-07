@@ -5,8 +5,11 @@
  */
 package Negocio;
 
-import Datos.NotaEntrega;
-import Datos.NotaPerito;
+
+import DatosSql.NotaEntregaDAO;
+import DatosSql.NotaEntregaDTO;
+import DatosSql.NotaPeritoDTO;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -16,46 +19,41 @@ import java.util.List;
  */
 public class NGestionarNotaEntrega {
     
-    private NotaEntrega notaEntrega;
-    public NotaEntrega nuevaNotaEntrega(NotaPerito nperito, Date fecha) throws Exception{
+    
+    private NotaEntregaDAO notaEntregaDAO;
+    private NotaEntregaDTO notaEntregaDTO;
+
+    public NGestionarNotaEntrega() throws SQLException, ClassNotFoundException {
+        this.notaEntregaDAO=new NotaEntregaDAO();
+    }
+
+    public NotaEntregaDTO nuevaNotaEntrega(NotaPeritoDTO nperito, Date fecha) throws Exception{
         if(nperito!=null && fecha !=null){
-            notaEntrega=new NotaEntrega();
-            notaEntrega.setNotaPerito(nperito);
-            this.notaEntrega.setFecha(fecha);
-            this.notaEntrega.setEliminado(Boolean.FALSE);
-            return (NotaEntrega) this.notaEntrega.guardar();
+            this.notaEntregaDTO=new NotaEntregaDTO();
+            this.notaEntregaDTO.setNotaPerito(nperito);
+            this.notaEntregaDTO.setFecha(fecha);
+            this.notaEntregaDTO.setEliminado(Boolean.FALSE);
+            this.notaEntregaDAO.insertarNotaEntrega(notaEntregaDTO);
+            return this.notaEntregaDTO;
         }else
             throw new Exception("debe introducir valores no nulos");
     }
-    public NotaEntrega anularNota(int id,NotaPerito nperito, Date fecha) throws Exception{
+    public NotaEntregaDTO anularNota(int id,NotaPeritoDTO nperito, Date fecha) throws Exception{
         if(nperito!=null && fecha!=null && id>0){
-            this.notaEntrega=new NotaEntrega();
-            this.notaEntrega.setId(id);
-            this.notaEntrega.setNotaPerito(nperito);
-            this.notaEntrega.setFecha(fecha);
-            this.notaEntrega.setEliminado(Boolean.TRUE);
-            return (NotaEntrega) this.notaEntrega.modificar();
+            this.notaEntregaDTO=new NotaEntregaDTO();
+            this.notaEntregaDTO.setId(id);
+            this.notaEntregaDTO.setNotaPerito(nperito);
+            this.notaEntregaDTO.setFecha(fecha);
+            this.notaEntregaDTO.setEliminado(Boolean.TRUE);
+            this.notaEntregaDAO.actualizarNotaEntrega(notaEntregaDTO);
+            return notaEntregaDTO;
         }else 
             throw new Exception("debe introducir valores no nulos");
     
     }
-    public NotaEntrega buscarPorNotaPerito(NotaPerito nperito) throws Exception{
-        if(nperito!=null){
-            this.notaEntrega=new NotaEntrega();
-            this.notaEntrega.setNotaPerito(nperito);
-            NotaEntrega ne=(NotaEntrega) this.notaEntrega.buscar().get(0);
-            if(ne!=null)
-                return ne;
-            else
-                throw new Exception("No se encontraron resultados en la busqueda");
-            
-        }else{
-            throw new Exception("debe introducir valores no nulos");
-        }  
-    }
-    public List listarTodos(){
-        this.notaEntrega=new NotaEntrega();
-        ///this.notaEntrega
-        return null;
+
+    public List listarTodos() throws SQLException, ClassNotFoundException{
+       
+        return this.notaEntregaDAO.getAll();
     }
 }

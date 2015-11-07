@@ -5,15 +5,17 @@
  */
 package Vista;
 
-import Datos.DetalleNota;
-import Datos.Extintor;
-import Datos.NotaServicio;
-import Datos.Persona;
+import DatosSql.DetalleNotaServicioDTO;
+import DatosSql.ExtintorDTO;
+import DatosSql.NotaServicioDTO;
+import DatosSql.PersonaDTO;
 import Negocio.NGestionarExtintor;
 import Negocio.NGestionarPersona;
 import Negocio.NNotaServicio;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
     private NNotaServicio nNotaServicio;
     private int selectedRowIndex;
 
-    public VNotaDeServicio() {
+    public VNotaDeServicio() throws SQLException, ClassNotFoundException {
         initComponents();
         selectedRowIndex = -1;
         this.listaDetalle = new ArrayList();
@@ -66,7 +68,7 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    Extintor ex = (Extintor) jCBextintor.getSelectedItem();
+                    ExtintorDTO ex = (ExtintorDTO) jCBextintor.getSelectedItem();
                     jFormattedTextField2.setText(String.valueOf(ex.getPeso()));
                 }
             });
@@ -357,8 +359,9 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBAgregarActionPerformed
-        Extintor e=(Extintor) ((Extintor) this.jCBextintor.getSelectedItem()).copiarProfunda();
-        DetalleNota dn = new DetalleNota(e, null, 1);
+        ExtintorDTO e=(ExtintorDTO) ((ExtintorDTO) this.jCBextintor.getSelectedItem()).copiarProfunda();
+        DetalleNotaServicioDTO dn = new DetalleNotaServicioDTO();
+        dn.setExtintor(e);
         this.listaDetalle.add(dn);
         cargarDetalle();
     }//GEN-LAST:event_jBAgregarActionPerformed
@@ -373,13 +376,14 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
     }//GEN-LAST:event_jBquitarActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        Date d;
+
         try {
-            d = sdf.parse(this.jTFfecha.getText());
+            DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+            Date myDate =  formatter.parse(this.jTFfecha.getText());
+            java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
             this.jTFid.setText(String.valueOf(this.nNotaServicio.
-                    nuevaNota((Persona) this.jCBcliente.getSelectedItem(),
-                            d, this.jTFdescripcion.getText(), listaDetalle)));
+                        nuevaNota((PersonaDTO) this.jCBcliente.getSelectedItem(),
+                            sqlDate, this.jTFdescripcion.getText(), listaDetalle).getId()));
             showMessage("Nota guardada", JOptionPane.INFORMATION_MESSAGE);
         } catch (ParseException ex) {
             System.out.println(ex.getMessage());
@@ -393,13 +397,13 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-
-        try {
-            Date d = sdf.parse(this.jTFfecha.getText());
+        try {            
+            DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+            Date myDate =  formatter.parse(this.jTFfecha.getText());
+            java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
             this.nNotaServicio.anularNota(Integer.valueOf(this.jTFid.getText()),
-                    (Persona) this.jCBcliente.getSelectedItem(),
-                    d, this.jTFdescripcion.getText());
+                    (PersonaDTO) this.jCBcliente.getSelectedItem(),
+                    sqlDate, this.jTFdescripcion.getText());
         } catch (ParseException ex) {
             showMessage("Error al guardar la nota, verifique el formato de la fecha",
                     JOptionPane.ERROR_MESSAGE);
@@ -413,12 +417,15 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try {
-            NotaServicio ns = this.nNotaServicio.buscarNotaPorId(Integer.valueOf(this.jTFid.getText()));
-            this.jTFfecha.setText(ns.getFecha().toString());
+             DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+             
+            NotaServicioDTO ns = this.nNotaServicio.buscarNotaPorId(Integer.valueOf(this.jTFid.getText()));
+            
+            this.jTFfecha.setText(formatter.format(ns.getFecha()));
             this.jTFdescripcion.setText(ns.getDescripcionCliente());
             this.jCBcliente.setSelectedItem(ns.getPersona());
             if (ns != null) {
-                this.listaDetalle = this.nNotaServicio.buscarDetalle(ns.getId());
+                this.listaDetalle = ns.getDetalle();
                 cargarDetalle();
             }
 
@@ -443,7 +450,7 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
             if (listaDetalle != null && !listaDetalle.isEmpty()) {
                 matriz = new Object[listaDetalle.size()][3];
                 for (int i = 0; i < listaDetalle.size(); i++) {
-                    DetalleNota tp = (DetalleNota) listaDetalle.get(i);
+                    DetalleNotaServicioDTO tp = (DetalleNotaServicioDTO) listaDetalle.get(i);
                     matriz[i][0] = tp.getExtintor().getId();
                     matriz[i][1] = tp.getExtintor();
                     matriz[i][2] = tp.getExtintor().getPeso();
@@ -508,7 +515,13 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new VNotaDeServicio().setVisible(true);
+                try {
+                    new VNotaDeServicio().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(VNotaDeServicio.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(VNotaDeServicio.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -543,8 +556,9 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
     private javax.swing.JTable jTdetalle;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void getSeleccion(NotaServicio ns) {
 
+    @Override
+    public void getSeleccion(NotaServicioDTO ns) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

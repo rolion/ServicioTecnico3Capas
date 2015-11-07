@@ -15,7 +15,7 @@ import org.hibernate.Session;
  * @version 1.0
  * @created 26-Aug-2015 11:31:40 AM
  */
-public abstract class THibernateHelper implements TransactionParticipant{
+public abstract class THibernateHelper {
         private Session session;
 
 	public THibernateHelper(){

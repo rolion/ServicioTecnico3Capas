@@ -5,7 +5,6 @@
  */
 package DatosSql;
 
-import Datos.Persona;
 import interfaces.ProtoType;
 import java.util.Date;
 import java.util.List;
@@ -95,6 +94,11 @@ public class NotaServicioDTO implements ProtoType{
         clone.setId(id);
         clone.setPersona(persona);
         return clone;
+    }
+
+    @Override
+    public String toString() {
+        return  id.toString() ;
     }
      
 }

@@ -5,10 +5,11 @@
  */
 package Vista;
 
-import Datos.Persona;
-import Datos.TipoPersona;
+import DatosSql.PersonaDTO;
+import DatosSql.TipoPersonaDTO;
 import Negocio.NGestionarPersona;
 import Negocio.NGestionarTipoPersona;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,13 +32,13 @@ public class VGestionarPersona extends javax.swing.JFrame {
     private NGestionarPersona ngp;
     private NGestionarTipoPersona ngtp;
             
-    public VGestionarPersona() {
+    public VGestionarPersona() throws SQLException, ClassNotFoundException {
         initComponents();
         ngtp=new NGestionarTipoPersona();
         ngp=new NGestionarPersona();
         initComoboBox();
     }
-    private void initComoboBox(){
+    private void initComoboBox() throws SQLException{
         Object[] listaTp=ngtp.listarTodos().toArray();
         this.jCBtipopersona.setModel(new DefaultComboBoxModel(listaTp));
     }
@@ -214,7 +215,7 @@ public class VGestionarPersona extends javax.swing.JFrame {
                     Integer.valueOf(this.jTFci.getText()),
                     Integer.valueOf(this.jTFtelefono.getText()),
                     this.jTFemail.getText(),
-                    this.jTFempresa.getText(), (TipoPersona) this.jCBtipopersona.getSelectedItem());
+                    this.jTFempresa.getText(), (TipoPersonaDTO) this.jCBtipopersona.getSelectedItem());
             showMessage("Persona guardada!", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             showMessage(ex.getMessage(), JOptionPane.ERROR_MESSAGE);
@@ -232,7 +233,7 @@ public class VGestionarPersona extends javax.swing.JFrame {
                     Integer.valueOf(this.jTFci.getText()),
                     Integer.valueOf(this.jTFtelefono.getText()),
                     this.jTFemail.getText(),
-                    this.jTFempresa.getText(), (TipoPersona) this.jCBtipopersona.getSelectedItem());
+                    this.jTFempresa.getText(), (TipoPersonaDTO) this.jCBtipopersona.getSelectedItem());
             showMessage("Persona Modificada", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             showMessage(ex.getMessage(), JOptionPane.ERROR_MESSAGE);
@@ -248,7 +249,7 @@ public class VGestionarPersona extends javax.swing.JFrame {
                     Integer.valueOf(this.jTFci.getText()),
                     Integer.valueOf(this.jTFtelefono.getText()),
                     this.jTFemail.getText(),
-                    this.jTFempresa.getText(), (TipoPersona) this.jCBtipopersona.getSelectedItem());
+                    this.jTFempresa.getText(), (TipoPersonaDTO) this.jCBtipopersona.getSelectedItem());
              showMessage("Persona Eliminada", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             showMessage(ex.getMessage(), JOptionPane.ERROR_MESSAGE);
@@ -258,14 +259,14 @@ public class VGestionarPersona extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         try {
-            List lista=this.ngp.buscarPersona(this.jTFnombre.getText());
+            List lista=this.ngp.listarTodos();
             Object vector[]={"Id","Nombre","Apellido","C.I.","Telefono","Email","Empresa", "T. Persona"} ;
             Object matriz [][]=new Object[lista.size()][8];
             jTableModel model;
             if(lista!=null && !lista.isEmpty()){
                 for (Object o1 : lista) {
                     int i=lista.indexOf(o1);
-                    Persona tp=(Persona) o1;
+                    PersonaDTO tp=(PersonaDTO) o1;
                     matriz[i][0]=tp.getId();
                     matriz[i][1]=tp.getNombre();
                     matriz[i][2]=tp.getApellido();
@@ -340,7 +341,13 @@ public class VGestionarPersona extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new VGestionarPersona().setVisible(true);
+                try {
+                    new VGestionarPersona().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(VGestionarPersona.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(VGestionarPersona.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

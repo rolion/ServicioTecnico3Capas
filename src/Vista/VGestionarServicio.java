@@ -5,8 +5,9 @@
  */
 package Vista;
 
-import Datos.Servicio;
+import DatosSql.ServicioDTO;
 import Negocio.NGestionarServicio;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +30,13 @@ public class VGestionarServicio extends javax.swing.JFrame {
     private Object titulo[]={"Id","Nombre","Precio"};
     public VGestionarServicio() {
         initComponents();
-        nGestionarServicio=new NGestionarServicio();
+        try {
+            nGestionarServicio=new NGestionarServicio();
+        } catch (SQLException ex) {
+            Logger.getLogger(VGestionarServicio.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(VGestionarServicio.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -280,12 +287,12 @@ public class VGestionarServicio extends javax.swing.JFrame {
 
     private void jBbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBbuscarActionPerformed
         try {
-            List result=this.nGestionarServicio.buscarPorNombre(this.jTFdescripcion.getText());
+            List result=this.nGestionarServicio.listarTodos();
             Object data[][]=new Object[result.size()][3];
             for(int i=0;i<result.size();i++){
-                data[i][0]=((Servicio)result.get(i)).getId();
-                data[i][1]=((Servicio)result.get(i)).getDescripcion();        
-                data[i][2]=((Servicio)result.get(i)).getPrecio();
+                data[i][0]=((ServicioDTO)result.get(i)).getId();
+                data[i][1]=((ServicioDTO)result.get(i)).getDescripcion();        
+                data[i][2]=((ServicioDTO)result.get(i)).getPrecio();
             }
             jTableModel model=new jTableModel(titulo,data);
             this.jTable1.setModel(model);

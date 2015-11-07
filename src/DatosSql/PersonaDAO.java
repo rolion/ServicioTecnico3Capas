@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author root
  */
-public class PersonaDAO implements SpecificParticipant{
+public class PersonaDAO {
 
     private final String tableName = "persona";
     private final String column_id = "id";
@@ -58,12 +58,11 @@ public class PersonaDAO implements SpecificParticipant{
     
     public PersonaDTO insertarPesona(PersonaDTO persona) throws SQLException {
         if (this.conn != null) {
-            String values = colum_nombre + "=" + persona.getNombre()
-                    + "," + column_apellido + "=" + persona.getApellido()
-                    + column_ci + "=" + persona.getCi() + "," + column_telefono + "=" + persona.getTelefono() + ","
-                    + column_email + "=" + persona.getEmail() + "," + column_nombre_empresa + "=" + persona.getNombre()
-                    + column_tipo_persona + "=" + persona.getTipoPersona().getId()
-                    + column_eliminado + "=" + persona.getEliminado();
+            String values = "'"+ persona.getNombre() + "','" + persona.getApellido()+"',"
+                    + persona.getCi() + ","+ persona.getTelefono() + ",'"
+                    + persona.getEmail() + "','" + persona.getNombre()+
+                     "'," + persona.getTipoPersona().getId()+","
+                     + persona.getEliminado();
             int id=this.conn.insert(tableName, all_columns, values);
             persona.setId(id);
             return persona;
@@ -73,16 +72,44 @@ public class PersonaDAO implements SpecificParticipant{
     public boolean updatePersona(PersonaDTO persona) throws SQLException{
         if(conn!=null){
             String where=column_id+"="+persona.getId();
-            String set=colum_nombre + "=" + persona.getNombre()
-                    + "," + column_apellido + "=" + persona.getApellido()
-                    + column_ci + "=" + persona.getCi() + "," + column_telefono + "=" + persona.getTelefono() + ","
-                    + column_email + "=" + persona.getEmail() + "," + column_nombre_empresa + "=" + persona.getNombre()
-                    + column_tipo_persona + "=" + persona.getTipoPersona().getId()
-                    + column_eliminado + "=" + persona.getEliminado();
+            String set=colum_nombre + "='" + persona.getNombre()+ "'," + 
+                    column_apellido + "='" + persona.getApellido()+"',"+
+                    column_ci + "=" + persona.getCi() + "," + 
+                    column_telefono + "=" + persona.getTelefono() + ","+ 
+                    column_email + "='" + persona.getEmail() + "'," + 
+                    column_nombre_empresa + "='" + persona.getNombreEmpresa()+"',"+ 
+                    column_tipo_persona + "=" + persona.getTipoPersona().getId() + ","+
+                    column_eliminado + "=" + persona.getEliminado();
             this.conn.update(tableName, set, where, "");
             return false;
         }
         return false;
+    }
+    public List listarTecnico() throws SQLException, ClassNotFoundException{
+        if(this.conn!=null){
+            String columns="p.id,p.nombre, p.apellido,p.id_tipo_persona,p.ci, p.email,p.telefono,p.nombre_empresa,p.eliminado ";
+            String From= " persona p JOIN tipo_persona tp on p.id_tipo_persona=tp.id ";
+            String where= "tp.nombre like 'tecnico%' and p.eliminado=0";
+            ResultSet rslt=this.conn.query(columns, From, where, "");
+            List lista=new ArrayList();
+            while(rslt.next()){
+                PersonaDTO p=new PersonaDTO();
+                p.setId(rslt.getInt(column_id));
+                p.setNombre(rslt.getString(colum_nombre));
+                p.setApellido(rslt.getString(column_apellido));
+                p.setCi(rslt.getInt(column_ci));
+                p.setEmail(rslt.getString(column_email));
+                p.setNombreEmpresa(rslt.getString(column_nombre_empresa));
+                p.setTelefono(rslt.getInt(column_telefono));
+                p.setEliminado(rslt.getBoolean(column_eliminado));
+                TipoPersonaDTO tp=new TipoPersonaDTO();
+                tp.setId(rslt.getInt(column_tipo_persona));
+                p.setTipoPersona(getTipoPersona(tp));
+                lista.add(p);
+            }
+            return lista;
+        }
+        return null;
     }
     public boolean eliminarPersona(PersonaDTO persona) throws SQLException{
         if(conn!=null){
@@ -94,7 +121,8 @@ public class PersonaDAO implements SpecificParticipant{
     }
     public List getAll() throws SQLException, ClassNotFoundException{
         if(this.conn!=null){
-            ResultSet rslt= this.conn.query("*", tableName, "", "");
+            String where=column_eliminado+"=0";
+            ResultSet rslt= this.conn.query("*", tableName, where, "");
             List lista=new ArrayList();
             
             while(rslt.next()){
@@ -125,47 +153,6 @@ public class PersonaDAO implements SpecificParticipant{
         return null;
     }
 
-    @Override
-    public boolean insertar(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean buscar(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean anular(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean actializar(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean join(long transactionID) {
-        if(this.currentTransction!=0)
-            return false;
-        this.currentTransction=transactionID;
-        return true;
-    }
-
-    @Override
-    public boolean commit(long transactionID) throws Exception {
-        if(this.currentTransction==transactionID){
-            this.insertarPesona(persona);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean cancel(long transactionID) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     public PersonaDTO getById(PersonaDTO p) throws SQLException, ClassNotFoundException{
         if(this.conn!=null){
             String Where=column_id+"="+p.getId()+" and "+column_eliminado+"= 0";
@@ -187,5 +174,4 @@ public class PersonaDAO implements SpecificParticipant{
         }
         return null;
     }
-
 }

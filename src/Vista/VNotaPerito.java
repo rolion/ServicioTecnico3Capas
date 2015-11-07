@@ -5,18 +5,20 @@
  */
 package Vista;
 
-import Datos.DetalleNota;
-import Datos.DetallePerito;
-import Datos.NotaPerito;
-import Datos.NotaServicio;
-import Datos.Persona;
-import Datos.Servicio;
+import DatosSql.DetallePeritoDTO;
+import DatosSql.NotaPeritoDTO;
+import DatosSql.NotaServicioDTO;
+import DatosSql.PersonaDTO;
+import DatosSql.ServicioDTO;
 import Negocio.NGestionarPersona;
 import Negocio.NGestionarServicio;
 import Negocio.NNotaPerito;
 import Negocio.NNotaServicio;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,13 +51,13 @@ public class VNotaPerito extends javax.swing.JFrame {
     private Object [] titulo={"Id","Servicio","Precio"};
     private int selectedRowIndex;
     private float total;
-    public VNotaPerito() {
+    public VNotaPerito() throws SQLException, ClassNotFoundException {
         initComponents();
         initComboBox();
         this.listSelectedServicio=new ArrayList();
         this.nNotaPerito=new NNotaPerito();
     }
-    private void initComboBox(){
+    private void initComboBox() throws SQLException, ClassNotFoundException{
         this.nGestionarServicio=new NGestionarServicio();
         this.nPersona=new NGestionarPersona();
         this.nNotaServicio=new NNotaServicio();
@@ -72,7 +74,7 @@ public class VNotaPerito extends javax.swing.JFrame {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    Servicio s=(Servicio) jCBservicio.getSelectedItem();
+                    ServicioDTO s=(ServicioDTO) jCBservicio.getSelectedItem();
                    // listSelectedServicio.add(s);
                     jTFprecio.setText(s.getPrecio().toString());
                 }
@@ -117,11 +119,11 @@ public class VNotaPerito extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jCBperito = new javax.swing.JComboBox();
         jPanel2 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        jBguardar = new javax.swing.JButton();
+        jBdardebaja = new javax.swing.JButton();
+        jBbuscar = new javax.swing.JButton();
+        jBagregar = new javax.swing.JButton();
+        jBquitar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
@@ -204,20 +206,20 @@ public class VNotaPerito extends javax.swing.JFrame {
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
-        jButton1.setText("Guardar");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jBguardar.setText("Guardar");
+        jBguardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jBguardarActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel2.add(jButton1, gridBagConstraints);
+        jPanel2.add(jBguardar, gridBagConstraints);
 
-        jButton3.setText("DarDeBaja");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        jBdardebaja.setText("DarDeBaja");
+        jBdardebaja.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                jBdardebajaActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -225,12 +227,12 @@ public class VNotaPerito extends javax.swing.JFrame {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        jPanel2.add(jButton3, gridBagConstraints);
+        jPanel2.add(jBdardebaja, gridBagConstraints);
 
-        jButton4.setText("Buscar");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        jBbuscar.setText("Buscar");
+        jBbuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                jBbuscarActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -238,31 +240,31 @@ public class VNotaPerito extends javax.swing.JFrame {
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        jPanel2.add(jButton4, gridBagConstraints);
+        jPanel2.add(jBbuscar, gridBagConstraints);
 
-        jButton5.setText("Agregar");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        jBagregar.setText("Agregar");
+        jBagregar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                jBagregarActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel2.add(jButton5, gridBagConstraints);
+        jPanel2.add(jBagregar, gridBagConstraints);
 
-        jButton6.setText("Quitar");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
+        jBquitar.setText("Quitar");
+        jBquitar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
+                jBquitarActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel2.add(jButton6, gridBagConstraints);
+        jPanel2.add(jBquitar, gridBagConstraints);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -337,11 +339,11 @@ public class VNotaPerito extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE)
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -365,15 +367,13 @@ public class VNotaPerito extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void jBdardebajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBdardebajaActionPerformed
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-            Date d=sdf.parse(this.jTFfecha.getText());
             this.nNotaPerito.darDeBaja(Integer.valueOf(
                     this.jTFid.getText()),
-                    (NotaServicio)this.jCBnotaservicio.getSelectedItem(), 
-                    (Persona)this.jCBperito.getSelectedItem(),
-                    d, this.listSelectedServicio);
+                    (NotaServicioDTO)this.jCBnotaservicio.getSelectedItem(), 
+                    (PersonaDTO)this.jCBperito.getSelectedItem(),
+                    getDate(), this.listSelectedServicio);
             this.jTFid.setText("");
             this.jTFfecha.setText("");
             this.listSelectedServicio.removeAll(listSelectedServicio);
@@ -383,64 +383,76 @@ public class VNotaPerito extends javax.swing.JFrame {
         } catch (Exception ex) {
             Logger.getLogger(VNotaPerito.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jBdardebajaActionPerformed
+    private java.sql.Date  getDate(){
+        try { 
+            DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+            Date myDate;
+            myDate = formatter.parse(this.jTFfecha.getText());
+            java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
+            return sqlDate;
+        } catch (ParseException ex) {
+            Logger.getLogger(VNotaPerito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    private void jBguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBguardarActionPerformed
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-            Date d=sdf.parse(this.jTFfecha.getText());
             this.jTFid.setText(String.valueOf(
                     this.nNotaPerito.nuevaNotaPerito(
-                    (NotaServicio)this.jCBnotaservicio.getSelectedItem(),
-                    (Persona)this.jCBperito.getSelectedItem(), 
-                    d, 
+                    (NotaServicioDTO)this.jCBnotaservicio.getSelectedItem(),
+                    (PersonaDTO)this.jCBperito.getSelectedItem(), 
+                    getDate(), 
                     this.listSelectedServicio).getId()));
                     showMessage("Datos guardados", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             showMessage(ex.getMessage(), JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(VNotaPerito.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jBguardarActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        Servicio s=(Servicio) this.jCBservicio.getSelectedItem();
-        this.listSelectedServicio.add(s.copiarProfunda());
+    private void jBagregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBagregarActionPerformed
+        ServicioDTO s=(ServicioDTO) this.jCBservicio.getSelectedItem();
+        DetallePeritoDTO detalle=new DetallePeritoDTO();
+        detalle.setCantidad(1);
+        detalle.setServicio((ServicioDTO) s.copiarProfunda());
+        this.listSelectedServicio.add(detalle);
         total=total+s.getPrecio();
         this.jTextField2.setText(String.valueOf(total));
         cargarDetalle();
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_jBagregarActionPerformed
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+    private void jBquitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBquitarActionPerformed
         if(selectedRowIndex>-1){
-            total=total-((Servicio)this.listSelectedServicio.get(selectedRowIndex)).getPrecio();
+            total=total-(((DetallePeritoDTO)this.listSelectedServicio.get(selectedRowIndex))).getServicio().getPrecio();
             this.jTextField2.setText(String.valueOf(total));
             this.listSelectedServicio.remove(selectedRowIndex);
             cargarDetalle();
             selectedRowIndex=-1;
         }
-    }//GEN-LAST:event_jButton6ActionPerformed
+    }//GEN-LAST:event_jBquitarActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void jBbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBbuscarActionPerformed
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             
-            NotaPerito np=this.nNotaPerito.buscarPorNotaSolicitud(
-                    ((NotaServicio)this.jCBnotaservicio.getSelectedItem())
-                            .getId());
-            this.jTFid.setText(np.getId().toString());
+            NotaPeritoDTO np=this.nNotaPerito.buscarPorId(
+                    Integer.valueOf(this.jTFid.getText()));
+            if(np!=null){
+                this.jTFid.setText(np.getId().toString());
             this.jTFfecha.setText(sdf.format(np.getFecha()));
-            this.jCBperito.setSelectedItem(np.getPersona());
-            for(Object d : np.getDetallePeritos()){
-                    DetallePerito dp=(DetallePerito) d;
-                    this.listSelectedServicio.add(dp.getServicio());
-            }
+            this.jCBperito.setSelectedItem(np.getPerito());
+            this.listSelectedServicio.addAll(np.getDetalle());
             cargarDetalle();
+            }else
+                showMessage("no se encontraron resultados", JOptionPane.INFORMATION_MESSAGE);
+            
             
         } catch (Exception ex) {
             showMessage(ex.getMessage(), JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(VNotaPerito.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_jBbuscarActionPerformed
     private void showMessage(String mensaje,int tipo){
         JOptionPane.showMessageDialog(this, mensaje, "Error", tipo);
     }
@@ -451,10 +463,10 @@ public class VNotaPerito extends javax.swing.JFrame {
                 if(listSelectedServicio!=null && !listSelectedServicio.isEmpty()){
                     matriz =new Object[listSelectedServicio.size()][3];
                     for(int i=0;i<listSelectedServicio.size();i++){
-                        Servicio tp=(Servicio) listSelectedServicio.get(i);
-                        matriz[i][0]=tp.getId().toString();
-                        matriz[i][1]=tp.getDescripcion();
-                        matriz[i][2]=tp.getPrecio().toString();
+                        DetallePeritoDTO tp=(DetallePeritoDTO) listSelectedServicio.get(i);
+                        matriz[i][0]=tp.getServicio().getId().toString();
+                        matriz[i][1]=tp.getServicio().getDescripcion();
+                        matriz[i][2]=tp.getServicio().getPrecio().toString();
                     } 
                 }else{
                     matriz=new Object[1][3];
@@ -510,17 +522,23 @@ public class VNotaPerito extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new VNotaPerito().setVisible(true);
+                try {
+                    new VNotaPerito().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(VNotaPerito.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(VNotaPerito.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jBagregar;
+    private javax.swing.JButton jBbuscar;
+    private javax.swing.JButton jBdardebaja;
+    private javax.swing.JButton jBguardar;
+    private javax.swing.JButton jBquitar;
     private javax.swing.JComboBox jCBnotaservicio;
     private javax.swing.JComboBox jCBperito;
     private javax.swing.JComboBox jCBservicio;

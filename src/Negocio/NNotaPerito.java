@@ -5,12 +5,20 @@
  */
 package Negocio;
 
-import Datos.DetallePerito;
-import Datos.NotaPerito;
-import Datos.NotaServicio;
-import Datos.Persona;
-import Datos.Servicio;
+import DatosSql.DetalleNotaServicioDAO;
+import DatosSql.DetalleNotaServicioDTO;
+import DatosSql.DetallePeritoDAO;
+import DatosSql.DetallePeritoDTO;
+import DatosSql.NotaPeritoDAO;
+import DatosSql.NotaPeritoDTO;
+import DatosSql.NotaServicioDAO;
+import DatosSql.NotaServicioDTO;
+import DatosSql.PersonaDTO;
+import DatosSql.ServicioDTO;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
+import interfaces.SpecificParticipant;
 import interfaces.THibernateHelper;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -22,94 +30,97 @@ import java.util.Set;
  * @author oscar
  */
 public class NNotaPerito {
-    private NotaPerito notaPerito;
+   
+    private NotaPeritoDAO notaPeritoDAO;
+    private NotaPeritoDTO notaPeritoDTO;
+    private List<SpecificParticipant> listaParticipantes;
 
-    public NNotaPerito() {
-    }
-     private boolean joinAll(List detalle, long id){
-        boolean valid=true;
-        for (Object detalle1 : detalle) {
-            valid=valid && ((THibernateHelper)detalle1).join(id);
-        }
+    public NNotaPerito() throws SQLException, ClassNotFoundException {
+        this.notaPeritoDAO=new NotaPeritoDAO();
+        this.listaParticipantes=new ArrayList<>();
+        this.listaParticipantes.add(notaPeritoDAO);
         
+    }
+     public boolean joinAll(long transactionID){
+        boolean valid=true;
+        for(SpecificParticipant participant: this.listaParticipantes){
+            valid=valid && participant.join(transactionID);
+        }
         return valid;
+        //return this.notaServicioDAO.join(transactionID) &&this.detalleServicioDAO.join(transactionID);
+    }
+    public void commitAll(long transactionID) throws Exception{
+         for(SpecificParticipant participant: this.listaParticipantes){
+            participant.commit(transactionID);
+        }
+    }
+    public void cancelAll(long transactionID) throws Exception{
+        for(SpecificParticipant participant: this.listaParticipantes){
+           participant.cancel(transactionID);
+       }
     }
     
-    public NotaPerito nuevaNotaPerito(NotaServicio notaServicio, Persona perito, Date fecha, 
-            List<Servicio> listServicio) throws Exception{
-        if(notaServicio!=null && perito !=null && fecha !=null){
-            long idTransaction=new Date().getTime();
-            this.notaPerito=new NotaPerito();
-            ArrayList detallePerito=new ArrayList();
-            try{
-                
-                List<THibernateHelper> participantes=new ArrayList<>();
-                participantes.addAll(listServicio);
-                participantes.add(perito);
-                participantes.add(notaServicio);
-                participantes.add(this.notaPerito);
-                boolean valid=this.joinAll(participantes, idTransaction);
-               
-                if(valid){
-                    this.notaPerito.setEliminado(Boolean.FALSE);
-                    this.notaPerito.setFecha(fecha);
-                    this.notaPerito.setNotaServicio(notaServicio);
-                    this.notaPerito.setPersona(perito);
-                    this.notaPerito.commit(idTransaction);
-                    for (Servicio s : listServicio) {
-                        DetallePerito dp=new DetallePerito();
-                        dp.setNotaPerito(notaPerito);
-                        dp.setPrecioTotal((float)0.0);
-                        dp.setServicio(s);
-                        detallePerito.add(dp);
-                        dp.commit(idTransaction);
+    public NotaPeritoDTO nuevaNotaPerito(NotaServicioDTO notaServicio, PersonaDTO perito, Date fecha, 
+            List<DetallePeritoDTO> detalle) throws Exception{
+        long idTransaction=new java.util.Date().getTime();
+        this.notaPeritoDTO=new NotaPeritoDTO();
+        this.notaPeritoDTO.setEliminado(Boolean.FALSE);
+        this.notaPeritoDTO.setFecha(fecha);
+        this.notaPeritoDTO.setNotaServicio(notaServicio);
+        this.notaPeritoDTO.setPerito(perito);
+        for (Object d : detalle) {
+                SpecificParticipant participante=new DetallePeritoDAO();
+                this.listaParticipantes.add(participante);
+        }
+        if(this.joinAll(idTransaction)){
+                if(this.listaParticipantes.get(0).validar(idTransaction,notaPeritoDTO)){
+                    boolean valid=true;
+                    for(int i=0;i<detalle.size();i++){
+                        DetallePeritoDTO d=(DetallePeritoDTO) detalle.get(i);
+                        d.setNotaPerito(notaPeritoDTO);
+                        valid=valid && this.listaParticipantes.get(i+1).validar(idTransaction, d);
                     }
-                    return notaPerito;
-                }
-                throw new Exception("No se pudo guardar la nota");
-               
-            }catch(Exception ex){
-                notaPerito.cancel(idTransaction);
-                for (Object detalle : detallePerito) {
-                    ((DetallePerito)detalle).cancel(idTransaction);  
-                }
-                throw ex;
+                    if(valid){
+                        this.commitAll(idTransaction);
+                        return notaPeritoDTO;
+                    }else
+                        this.cancelAll(idTransaction);
+                }else
+                    this.listaParticipantes.get(0).cancel(idTransaction);
             }
-            
-        }else
-            throw new Exception("Error al guardar la nueva nota ");
-        
+        return null;
     }
-    public NotaPerito darDeBaja(int id,
-            NotaServicio notaServicio, Persona perito, Date fecha, 
+    public NotaPeritoDTO darDeBaja(int id,
+            NotaServicioDTO notaServicio, PersonaDTO perito, Date fecha, 
             List listDetalleNota) throws Exception{
       if(notaServicio!=null && perito !=null && fecha !=null){
-            this.notaPerito=new NotaPerito();
-            this.notaPerito.setId(id);
-            this.notaPerito.setEliminado(Boolean.TRUE);
-            this.notaPerito.setFecha(fecha);
-            this.notaPerito.setNotaServicio(notaServicio);
-            this.notaPerito.setPersona(perito);
-            return (NotaPerito) this.notaPerito.modificar();
+            this.notaPeritoDTO=new NotaPeritoDTO();
+            this.notaPeritoDTO.setId(id);
+            this.notaPeritoDTO.setEliminado(Boolean.TRUE);
+            this.notaPeritoDTO.setFecha(fecha);
+            this.notaPeritoDTO.setNotaServicio(notaServicio);
+            this.notaPeritoDTO.setPerito(perito);
+            this.notaPeritoDAO.actualizarNota(notaPeritoDTO);
+            return this.notaPeritoDTO;
         }else
             throw new Exception("Error al eliminar la nueva nota ");  
     }
-    public NotaPerito buscarPorNotaSolicitud(int idNotaSolicitud) throws Exception{
-        NotaServicio ns=new NotaServicio();
-        ns.setId(idNotaSolicitud);
-        this.notaPerito=new NotaPerito();
-        this.notaPerito.setNotaServicio(ns);
-        List r =this.notaPerito.buscar();
-        if(r!=null && !r.isEmpty()){
-            return (NotaPerito) r.get(0);
-        }else
-            throw new Exception("No se encontraron notas");
+    public NotaPeritoDTO buscarPorNotaSolicitud(int idNotaSolicitud) throws Exception{
+        NotaServicioDTO n=new NotaServicioDTO();
+        n.setId(idNotaSolicitud);
+        this.notaPeritoDAO.getNotaPeritoById(notaPeritoDTO);
+        return null;
     }
-    
+    public NotaPeritoDTO buscarPorId(int id) throws SQLException, ClassNotFoundException{
+        NotaPeritoDTO n=new NotaPeritoDTO();
+        n.setId(id);
+        return this.notaPeritoDAO.getNotaPeritoById(n);
+    }
     public List listarTodos() throws Exception{
-        this.notaPerito=new NotaPerito();
-        return this.notaPerito.listarTodos();
-        
+        return this.notaPeritoDAO.getAll();
+    }
+    public List listarTodasSinNotaEntrega() throws SQLException, ClassNotFoundException{
+        return this.notaPeritoDAO.getAllNotaPeritoSinNotaEntrega();
     }
     
 }

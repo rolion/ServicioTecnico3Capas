@@ -5,11 +5,11 @@
  */
 package Vista;
 
-import Datos.NotaEntrega;
-import Datos.NotaPerito;
-import Datos.Servicio;
+import DatosSql.NotaPeritoDTO;
 import Negocio.NGestionarNotaEntrega;
 import Negocio.NNotaPerito;
+import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class VGestionarNotaEntrega extends javax.swing.JFrame {
     private NNotaPerito nNotaPerito;
     private Object [] titulo={"Id","Id Nota Perito","Perito"};
     private List listNotaPerito;
-    public VGestionarNotaEntrega() {
+    public VGestionarNotaEntrega() throws SQLException, ClassNotFoundException {
         initComponents();
         this.nNotaPerito=new NNotaPerito();
         this.nNotaEntrega=new NGestionarNotaEntrega();
@@ -44,7 +44,7 @@ public class VGestionarNotaEntrega extends javax.swing.JFrame {
     }
     private void initComboBox() {
         try{
-            listNotaPerito=this.nNotaPerito.listarTodos();
+            listNotaPerito=this.nNotaPerito.listarTodasSinNotaEntrega();
             if(listNotaPerito!=null ){
                 
                 this.jCBnotaPerito.setModel(new DefaultComboBoxModel(listNotaPerito.toArray()));
@@ -56,6 +56,18 @@ public class VGestionarNotaEntrega extends javax.swing.JFrame {
             showMessage(e.getMessage(), JOptionPane.ERROR_MESSAGE);
         }
             
+    }
+     private java.sql.Date  getDate(){
+        try { 
+            DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+            Date myDate;
+            myDate = formatter.parse(this.jTFfecha.getText());
+            java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
+            return sqlDate;
+        } catch (ParseException ex) {
+            Logger.getLogger(VNotaPerito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     /**
@@ -181,12 +193,13 @@ public class VGestionarNotaEntrega extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");  
-        Date f;
+
         try {
-            f = sdf.parse(this.jTFfecha.getText());
-            this.nNotaEntrega.nuevaNotaEntrega((NotaPerito) this.jCBnotaPerito.getSelectedItem(), f);
+            this.jTFid.setText(
+            this.nNotaEntrega.nuevaNotaEntrega((NotaPeritoDTO) this.jCBnotaPerito.getSelectedItem(),
+                    getDate()).toString());
             showMessage("data guardado", JOptionPane.INFORMATION_MESSAGE);
+            initComboBox();
         } catch (ParseException ex) {
             Logger.getLogger(VGestionarNotaEntrega.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
@@ -199,7 +212,8 @@ public class VGestionarNotaEntrega extends javax.swing.JFrame {
         SimpleDateFormat sdf=new SimpleDateFormat("MM/dd/yyyy");
         try {
             this.nNotaEntrega.anularNota(
-                    Integer.valueOf(this.jTFid.getText()), (NotaPerito)this.jCBnotaPerito.getSelectedItem(), sdf.parse(this.jTFfecha.getText()));
+                    Integer.valueOf(this.jTFid.getText()), (NotaPeritoDTO)this.jCBnotaPerito.getSelectedItem(), 
+                    getDate());
             showMessage("Datos eliminados", JOptionPane.INFORMATION_MESSAGE);
         } catch (ParseException ex) {
             showMessage("Error al eliminar dato", JOptionPane.ERROR_MESSAGE);
@@ -209,16 +223,16 @@ public class VGestionarNotaEntrega extends javax.swing.JFrame {
             Logger.getLogger(VGestionarNotaEntrega.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
-    private NotaEntrega busqueda;
+
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        try {
-            busqueda=this.nNotaEntrega.buscarPorNotaPerito((NotaPerito) this.jCBnotaPerito.getSelectedItem());
-            this.jTFid.setText(busqueda.getId().toString());
-            SimpleDateFormat sdf=new SimpleDateFormat("MM/dd/yyyy");
-            this.jTFfecha.setText(sdf.format(busqueda.getFecha()));
-        } catch (Exception ex) {
-            Logger.getLogger(VGestionarNotaEntrega.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            busqueda=this.nNotaEntrega.buscarPorNotaPerito((NotaPerito) this.jCBnotaPerito.getSelectedItem());
+//            this.jTFid.setText(busqueda.getId().toString());
+//            SimpleDateFormat sdf=new SimpleDateFormat("MM/dd/yyyy");
+//            this.jTFfecha.setText(sdf.format(busqueda.getFecha()));
+//        } catch (Exception ex) {
+//            Logger.getLogger(VGestionarNotaEntrega.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }//GEN-LAST:event_jButton3ActionPerformed
     private void showMessage(String mensaje,int tipo){
         JOptionPane.showMessageDialog(this, mensaje, "Error", tipo);
@@ -290,7 +304,13 @@ public class VGestionarNotaEntrega extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new VGestionarNotaEntrega().setVisible(true);
+                try {
+                    new VGestionarNotaEntrega().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(VGestionarNotaEntrega.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(VGestionarNotaEntrega.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

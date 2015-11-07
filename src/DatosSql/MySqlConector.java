@@ -16,13 +16,20 @@ import java.util.Date;
 public class MySqlConector {
     
   private Connection connect = null;
+  private static MySqlConector conn;
   private Statement statement = null;
   private PreparedStatement preparedStatement = null;
   private ResultSet resultSet = null;
   private String query;
   
+  
   public static MySqlConector getInstance() throws SQLException, ClassNotFoundException{
-      return new MySqlConector();
+      if(conn!=null){
+          return conn;
+      }
+        conn=new MySqlConector();
+        return conn;
+      
   }
   private MySqlConector() throws SQLException, ClassNotFoundException{
       Class.forName("com.mysql.jdbc.Driver");

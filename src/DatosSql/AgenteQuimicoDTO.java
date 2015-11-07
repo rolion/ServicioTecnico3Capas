@@ -74,7 +74,7 @@ public class AgenteQuimicoDTO implements ProtoType{
 
     @Override
     public String toString() {
-        return "AgenteQuimicoDTO{" + "id=" + id + ", nombre=" + nombre + ", clasificacion=" + clasificacion + ", eliminado=" + eliminado + ", currentTransaction=" + currentTransaction + '}';
+        return  nombre ;
     }
     
 }

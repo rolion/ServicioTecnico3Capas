@@ -5,8 +5,10 @@
  */
 package Negocio;
 
-import Datos.Persona;
-import Datos.TipoPersona;
+import DatosSql.PersonaDAO;
+import DatosSql.PersonaDTO;
+import DatosSql.TipoPersonaDTO;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -15,89 +17,88 @@ import java.util.List;
  */
 public class NGestionarPersona {
     
-    private Persona persona;
+    private PersonaDTO personaDTO;
+    private PersonaDAO personaDAO;
 
-    public NGestionarPersona() {
-       persona=null;
+    public NGestionarPersona() throws SQLException, ClassNotFoundException {
+       personaDTO=null;
+       this.personaDAO=new PersonaDAO();
     }
     
-    public Persona nuevo(String nombre, String apellido, int ci, int telefono, 
-            String email, String empresa, TipoPersona tp) throws Exception{
+    public PersonaDTO nuevo(String nombre, String apellido, int ci, int telefono, 
+            String email, String empresa, TipoPersonaDTO tp) throws Exception{
         
         if(nombre.trim().length()>0 && ci>0 && apellido.trim().length()>0){
-            persona=new Persona();
-            persona.setNombre(nombre);
-            persona.setApellido(apellido);
-            persona.setCi(ci);
-            persona.setTelefono(telefono);
-            persona.setEmail(email);
-            persona.setNombreEmpresa(empresa);
-            persona.setEliminado(Boolean.FALSE);
-            persona.setTipoPersona(tp);
-            persona.guardar();
+            personaDTO=new PersonaDTO();
+            personaDTO.setNombre(nombre);
+            personaDTO.setApellido(apellido);
+            personaDTO.setCi(ci);
+            personaDTO.setTelefono(telefono);
+            personaDTO.setEmail(email);
+            personaDTO.setNombreEmpresa(empresa);
+            personaDTO.setEliminado(Boolean.FALSE);
+            personaDTO.setTipoPersona(tp);
+            personaDAO.insertarPesona(personaDTO);
         }else
             throw new Exception("por lo menos se necesita nombre, apellido y ci, para guardar");
         
             
-        return persona;
+        return personaDTO;
     }
-    public Persona modificar(int id,String nombre, String apellido, int ci, int telefono, 
-            String email, String empresa, TipoPersona tp) throws Exception{
+    public PersonaDTO modificar(int id,String nombre, String apellido, int ci, int telefono, 
+            String email, String empresa, TipoPersonaDTO tp) throws Exception{
         
         if(id>0){
-            persona=new Persona();
-            persona.setId(id);
-            persona.setNombre(nombre);
-            persona.setApellido(apellido);
-            persona.setCi(ci);
-            persona.setTelefono(telefono);
-            persona.setEmail(email);
-            persona.setNombreEmpresa(empresa);
-            persona.setEliminado(Boolean.FALSE);
-            persona.setTipoPersona(tp);
-            persona.modificar();
+            personaDTO=new PersonaDTO();
+            personaDTO.setId(id);
+            personaDTO.setNombre(nombre);
+            personaDTO.setApellido(apellido);
+            personaDTO.setCi(ci);
+            personaDTO.setTelefono(telefono);
+            personaDTO.setEmail(email);
+            personaDTO.setNombreEmpresa(empresa);
+            personaDTO.setEliminado(Boolean.FALSE);
+            personaDTO.setTipoPersona(tp);
+            personaDAO.updatePersona(personaDTO);
         }else
             throw new Exception("por lo menos se necesita el id, para modificar");
-        return persona;
+        return personaDTO;
     }
     public Boolean darDeBaja(int id,String nombre, String apellido, int ci, int telefono, 
-            String email, String empresa,TipoPersona tp) throws Exception{
+            String email, String empresa,TipoPersonaDTO tp) throws Exception{
         
          
         if(id>0){
-            persona=new Persona();
-            persona.setId(id);
-            persona.setNombre(nombre);
-            persona.setApellido(apellido);
-            persona.setCi(ci);
-            persona.setTelefono(telefono);
-            persona.setEmail(email);
-            persona.setNombreEmpresa(empresa);
-            persona.setEliminado(Boolean.TRUE);
-            persona.setTipoPersona(tp);
-            persona.modificar();
+            personaDTO=new PersonaDTO();
+            personaDTO.setId(id);
+            personaDTO.setNombre(nombre);
+            personaDTO.setApellido(apellido);
+            personaDTO.setCi(ci);
+            personaDTO.setTelefono(telefono);
+            personaDTO.setEmail(email);
+            personaDTO.setNombreEmpresa(empresa);
+            personaDTO.setEliminado(Boolean.TRUE);
+            personaDTO.setTipoPersona(tp);
+            personaDAO.updatePersona(personaDTO);
         }else
             throw new Exception("por lo menos se necesita el id, para dar de baja");
         return true;
     
     }
-    public List buscarPersona(String nombre) throws Exception{
-        if(nombre.trim().length()>0){
-            persona=new Persona();
-            persona.setNombre(nombre);
-            return persona.buscarPorNombre();
-        }else
-            throw new Exception("debe introducir el nombre");
-        
-    }
+//    public List buscarPersona(String nombre) throws Exception{
+//        if(nombre.trim().length()>0){
+//            personaDTO=new Persona();
+//            personaDTO.setNombre(nombre);
+//            return personaDTO.buscarPorNombre();
+//        }else
+//            throw new Exception("debe introducir el nombre");
+//        
+//    }
     public List listarTodos() throws Exception{
-        this.persona=new Persona();
-        
-        return persona.listarTodos();
+        return personaDAO.getAll();
     }
     public List listarTecnico() throws Exception{
-        this.persona=new Persona();
-        return this.persona.listarTecnicos();
+        return this.personaDAO.listarTecnico();
     }
     
 }
