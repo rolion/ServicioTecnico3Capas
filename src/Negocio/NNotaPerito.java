@@ -38,7 +38,7 @@ public class NNotaPerito {
     public NNotaPerito() throws SQLException, ClassNotFoundException {
         this.notaPeritoDAO=new NotaPeritoDAO();
         this.listaParticipantes=new ArrayList<>();
-        this.listaParticipantes.add(notaPeritoDAO);
+        
         
     }
      public boolean joinAll(long transactionID){
@@ -68,6 +68,7 @@ public class NNotaPerito {
         this.notaPeritoDTO.setFecha(fecha);
         this.notaPeritoDTO.setNotaServicio(notaServicio);
         this.notaPeritoDTO.setPerito(perito);
+        this.listaParticipantes.add(notaPeritoDAO);
         for (Object d : detalle) {
                 SpecificParticipant participante=new DetallePeritoDAO();
                 this.listaParticipantes.add(participante);

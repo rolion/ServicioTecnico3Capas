@@ -30,16 +30,15 @@ public class VGestionarPersona extends javax.swing.JFrame {
      * Creates new form VGestionarPersona
      */
     private NGestionarPersona ngp;
-    private NGestionarTipoPersona ngtp;
+
             
     public VGestionarPersona() throws SQLException, ClassNotFoundException {
         initComponents();
-        ngtp=new NGestionarTipoPersona();
         ngp=new NGestionarPersona();
         initComoboBox();
     }
-    private void initComoboBox() throws SQLException{
-        Object[] listaTp=ngtp.listarTodos().toArray();
+    private void initComoboBox() throws SQLException, ClassNotFoundException{
+        Object[] listaTp=new NGestionarTipoPersona().listarTodos().toArray();
         this.jCBtipopersona.setModel(new DefaultComboBoxModel(listaTp));
     }
 

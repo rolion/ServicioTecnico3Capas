@@ -40,9 +40,6 @@ public class VNotaPerito extends javax.swing.JFrame {
     /**
      * Creates new form VNotaPerito
      */
-    private NNotaServicio nNotaServicio;
-    private NGestionarPersona nPersona;
-    private NGestionarServicio nGestionarServicio;
     private List listanota;
     private List listapersona;
     private List listaservicio;
@@ -58,11 +55,9 @@ public class VNotaPerito extends javax.swing.JFrame {
         this.nNotaPerito=new NNotaPerito();
     }
     private void initComboBox() throws SQLException, ClassNotFoundException{
-        this.nGestionarServicio=new NGestionarServicio();
-        this.nPersona=new NGestionarPersona();
-        this.nNotaServicio=new NNotaServicio();
+
         try {
-            listaservicio=this.nGestionarServicio.listarTodos();
+            listaservicio=new NGestionarServicio().listarTodos();
             if(listaservicio!=null){
                 this.jCBservicio.setModel
                     (new DefaultComboBoxModel
@@ -79,7 +74,7 @@ public class VNotaPerito extends javax.swing.JFrame {
                     jTFprecio.setText(s.getPrecio().toString());
                 }
             });
-            this.listapersona=this.nPersona
+            this.listapersona=new NGestionarPersona()
                             .listarTecnico();
             if(listapersona!=null){
                 this.jCBperito.setModel
@@ -87,7 +82,7 @@ public class VNotaPerito extends javax.swing.JFrame {
             }else{                
                 this.jCBperito.setModel(new DefaultComboBoxModel(new ArrayList().toArray()));
             }
-            listanota=this.nNotaServicio.listarTodos();
+            listanota=new NNotaServicio().listarTodos();
             if(listanota!=null){
                 this.jCBnotaservicio.setModel(new DefaultComboBoxModel(listanota.toArray()));
             }else

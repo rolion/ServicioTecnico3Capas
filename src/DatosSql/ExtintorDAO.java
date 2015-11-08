@@ -18,7 +18,7 @@ import java.util.List;
 public class ExtintorDAO {
 
     private ExtintorDTO extintorDTO;
-    private AgenteQuimicoDAO agente;
+    
     private MySqlConector conn;
     private final String tableName = "extintor";
     private final String column_id = "id";
@@ -113,8 +113,8 @@ public class ExtintorDAO {
     }
 
     private AgenteQuimicoDTO getAgenteQuimico(AgenteQuimicoDTO agenteQ) throws SQLException, ClassNotFoundException {
-        this.agente = new AgenteQuimicoDAO();
-        return this.agente.getAgenteById(agenteQ);
+        
+        return new AgenteQuimicoDAO().getAgenteById(agenteQ);
     }
 
 }

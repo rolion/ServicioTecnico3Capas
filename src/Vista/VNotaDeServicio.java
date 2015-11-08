@@ -43,8 +43,6 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
     private List listaExtintores;
     private List listaDetalle;
     private Object[] titulo = {"Id", "Nombre", "Peso Kg"};
-    private NGestionarPersona nGestionarPersona;
-    private NGestionarExtintor nGestionarExtintor;
     private NNotaServicio nNotaServicio;
     private int selectedRowIndex;
 
@@ -52,8 +50,6 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
         initComponents();
         selectedRowIndex = -1;
         this.listaDetalle = new ArrayList();
-        this.nGestionarExtintor = new NGestionarExtintor();
-        this.nGestionarPersona = new NGestionarPersona();
         initComboBox();
         this.nNotaServicio = new NNotaServicio();
     }
@@ -61,8 +57,8 @@ public class VNotaDeServicio extends javax.swing.JFrame implements InterfaceBusq
     private void initComboBox() {
 
         try {
-            listaClientes = this.nGestionarPersona.listarTodos();
-            listaExtintores = this.nGestionarExtintor.listarTodos();
+            listaClientes =new NGestionarPersona().listarTodos();
+            listaExtintores = new NGestionarExtintor().listarTodos();
             this.jCBcliente.setModel(new DefaultComboBoxModel(listaClientes.toArray()));
             this.jCBextintor.addActionListener(new ActionListener() {
 

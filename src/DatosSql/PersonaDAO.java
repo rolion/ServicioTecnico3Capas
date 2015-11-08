@@ -32,7 +32,6 @@ public class PersonaDAO {
             + column_telefono + "," + column_email + "," + column_nombre_empresa
             + "," + column_tipo_persona + "," + column_eliminado;
     private PersonaDTO persona;
-    private TipoPersonaDAO tipoPersona;
     private MySqlConector conn;
     private long currentTransction;
     public PersonaDAO() throws SQLException, ClassNotFoundException {
@@ -146,8 +145,8 @@ public class PersonaDAO {
     }
     private TipoPersonaDTO getTipoPersona(TipoPersonaDTO tipoPersona) throws SQLException, ClassNotFoundException{
         if(this.conn!=null){
-            this.tipoPersona=new TipoPersonaDAO();
-            return this.tipoPersona.getById(tipoPersona);
+
+            return new TipoPersonaDAO().getById(tipoPersona);
         }
             
         return null;
